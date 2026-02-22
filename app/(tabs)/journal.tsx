@@ -167,25 +167,7 @@ export default function JournalScreen() {
 
           <Text style={[styles.sectionTitle, { marginTop: 28 }]}>Stats</Text>
 
-          <View style={styles.statsRow}>
-            {[
-              { label: "Emotion Logs", value: stats.totalEmotionLogs, icon: "heart", color: "#FF9A8B" },
-              { label: "Feeling Logs", value: stats.totalFeelingLogs, icon: "body", color: "#A78BFA" },
-              { label: "Quests Done", value: stats.totalQuests, icon: "checkmark-circle", color: "#7ED957" },
-              { label: "Day Streak", value: stats.streak, icon: "flame", color: "#FFB347" },
-            ].map((s) => (
-              <View key={s.label} style={styles.statCard}>
-                <View style={[styles.statIcon, { backgroundColor: s.color + "15" }]}>
-                  <Ionicons name={s.icon as any} size={22} color={s.color} />
-                </View>
-                <Text style={styles.statValue}>{s.value}</Text>
-                <Text style={styles.statLabel}>{s.label}</Text>
-              </View>
-            ))}
-          </View>
-
-          <View style={styles.growthCard}>
-            <Text style={styles.growthTitle}>Growth Summary</Text>
+          <View style={styles.statsCard}>
             <View style={styles.growthRow}>
               {[
                 { label: "Emotion", value: character?.emotionGrowth || 0, color: "#FF9A8B" },
@@ -201,6 +183,18 @@ export default function JournalScreen() {
                   <Text style={[styles.growthBarValue, { color: g.color }]}>{g.value}</Text>
                 </View>
               ))}
+            </View>
+            <View style={styles.miniStatsRow}>
+              <View style={styles.miniStatCard}>
+                <Ionicons name="checkmark-circle" size={18} color="#7ED957" />
+                <Text style={styles.miniStatValue}>{stats.totalQuests}</Text>
+                <Text style={styles.miniStatLabel}>Quests</Text>
+              </View>
+              <View style={styles.miniStatCard}>
+                <Ionicons name="flame" size={18} color="#FFB347" />
+                <Text style={styles.miniStatValue}>{stats.streak}</Text>
+                <Text style={styles.miniStatLabel}>Streak</Text>
+              </View>
             </View>
           </View>
 
@@ -287,24 +281,25 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#FFFFFF",
   },
-  statsRow: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginBottom: 20 },
-  statCard: {
-    width: "47%", backgroundColor: "#F8F5FF", borderRadius: 16, padding: 16,
-    alignItems: "center", gap: 6, flexGrow: 1,
-  },
-  statIcon: { width: 44, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  statValue: { fontSize: 28, fontWeight: "800", color: "#2D2B3D" },
-  statLabel: { fontSize: 12, color: "#9B97B0", fontWeight: "500" },
-  growthCard: {
+  statsCard: {
     backgroundColor: "#F8F5FF", borderRadius: 20, padding: 20,
   },
-  growthTitle: { fontSize: 16, fontWeight: "700", color: "#2D2B3D", marginBottom: 16 },
-  growthRow: { flexDirection: "row", justifyContent: "space-around", alignItems: "flex-end", height: 140 },
+  growthRow: { flexDirection: "row", justifyContent: "space-around", alignItems: "flex-end", height: 130 },
   growthItem: { alignItems: "center", gap: 6 },
-  growthBarBg: { width: 32, height: 100, backgroundColor: "#EDE8F5", borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
+  growthBarBg: { width: 32, height: 90, backgroundColor: "#EDE8F5", borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
   growthBarFill: { width: "100%", borderRadius: 16, minHeight: 4 },
   growthBarLabel: { fontSize: 10, fontWeight: "600", color: "#9B97B0" },
   growthBarValue: { fontSize: 14, fontWeight: "700" },
+  miniStatsRow: {
+    flexDirection: "row", gap: 12, marginTop: 16,
+    borderTopWidth: 1, borderTopColor: "#EDE8F5", paddingTop: 14,
+  },
+  miniStatCard: {
+    flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
+    backgroundColor: "#FFFFFF", borderRadius: 12, paddingVertical: 10,
+  },
+  miniStatValue: { fontSize: 18, fontWeight: "800", color: "#2D2B3D" },
+  miniStatLabel: { fontSize: 11, color: "#9B97B0", fontWeight: "500" },
   logItem: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "#EDE8F5" },
   logDot: { width: 8, height: 8, borderRadius: 4 },
   logText: { fontSize: 14, fontWeight: "600", color: "#2D2B3D", textTransform: "capitalize" },

@@ -85,9 +85,10 @@ const BASE_CHAR_SIZE = 170;
 const LEVEL_SCALE_STEP = 0.04;
 const MAX_SCALE = 2.0;
 
-function CharacterView({ character, onPress }: { character: any; onPress: () => void }) {
+function CharacterView({ character, onPress, showTooltip }: { character: any; onPress: () => void; showTooltip?: boolean }) {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
+  const tooltipOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.loop(
@@ -104,6 +105,17 @@ function CharacterView({ character, onPress }: { character: any; onPress: () => 
     ).start();
   }, []);
 
+  useEffect(() => {
+    if (showTooltip) {
+      Animated.sequence([
+        Animated.delay(800),
+        Animated.timing(tooltipOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+        Animated.delay(4000),
+        Animated.timing(tooltipOpacity, { toValue: 0, duration: 600, useNativeDriver: true }),
+      ]).start();
+    }
+  }, [showTooltip]);
+
   const species = character?.species || "cloud";
   const stage = character?.evolutionStage || 1;
   const level = character?.level || 1;
@@ -119,6 +131,12 @@ function CharacterView({ character, onPress }: { character: any; onPress: () => 
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={styles.characterContainer}>
+      {showTooltip && (
+        <Animated.View style={[styles.tooltip, { opacity: tooltipOpacity }]}>
+          <Text style={styles.tooltipText}>Tap me to customize!</Text>
+          <View style={styles.tooltipArrow} />
+        </Animated.View>
+      )}
       <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
         <Animated.View style={{ transform: [{ translateY: floatAnim }] }}>
           <Image source={charImage} style={{ width: imgSize, height: imgSize }} resizeMode="contain" />
@@ -154,6 +172,7 @@ export default function HomeScreen() {
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<number | null>(null);
   const [showCharacterPicker, setShowCharacterPicker] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(true);
 
   const { data: character } = useQuery({
     queryKey: ["character"],
@@ -511,7 +530,7 @@ export default function HomeScreen() {
         colors={["#5B7AE8", "#7B6BC5", "#9B7FD4"]}
         style={[styles.topArea, { paddingTop: topInset + 4 }]}
       >
-        <CharacterView character={character} onPress={() => setShowCharacterPicker(true)} />
+        <CharacterView character={character} onPress={() => { setShowCharacterPicker(true); setShowTooltip(false); }} showTooltip={showTooltip} />
       </LinearGradient>
 
       <View style={styles.chatSection}>
@@ -613,7 +632,37 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: 28,
   },
-  characterContainer: { alignItems: "center", paddingVertical: 4 },
+  characterContainer: { alignItems: "center", paddingVertical: 4, position: "relative" },
+  tooltip: {
+    position: "absolute",
+    top: -8,
+    zIndex: 10,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  tooltipText: { fontSize: 12, fontWeight: "700", color: "#5B7AE8" },
+  tooltipArrow: {
+    position: "absolute",
+    bottom: -6,
+    alignSelf: "center",
+    left: "50%",
+    marginLeft: -6,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 6,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderTopColor: "#FFFFFF",
+  },
   characterName: { fontSize: 18, fontWeight: "800", color: "#FFFFFF", marginTop: 6, letterSpacing: -0.3 },
   levelRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 6 },
   levelPill: {
