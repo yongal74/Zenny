@@ -53,13 +53,10 @@ const FEELINGS = [
 const ACTIVITIES = [
   { key: "breath", label: "1-Min Breath", emoji: "🌬️", exp: 30 },
   { key: "meditation", label: "Meditation", emoji: "🧘", exp: 25 },
-  { key: "gratitude", label: "Gratitude Journal", emoji: "📝", exp: 25 },
+  { key: "gratitude", label: "Gratitude", emoji: "📝", exp: 25 },
   { key: "water", label: "Drink Water", emoji: "💧", exp: 15 },
-  { key: "gaze", label: "Look Far Away", emoji: "👀", exp: 15 },
-  { key: "stretch", label: "Stand & Stretch", emoji: "🙆", exp: 20 },
-  { key: "neck", label: "Neck & Shoulder", emoji: "💆", exp: 25 },
-  { key: "music", label: "Favorite Song", emoji: "🎵", exp: 15 },
-  { key: "window", label: "Open a Window", emoji: "🪟", exp: 10 },
+  { key: "stretch", label: "Stretch", emoji: "🙆", exp: 20 },
+  { key: "etc", label: "Etc.", emoji: "✨", exp: 10 },
 ];
 
 type ChatMsg = {

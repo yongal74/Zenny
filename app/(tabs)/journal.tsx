@@ -21,11 +21,8 @@ const ACTIVITIES = [
   { key: "meditation", label: "Meditation", exp: 25 },
   { key: "gratitude", label: "Gratitude", exp: 25 },
   { key: "water", label: "Drink Water", exp: 15 },
-  { key: "gaze", label: "Look Far Away", exp: 15 },
-  { key: "stretch", label: "Stand & Stretch", exp: 20 },
-  { key: "neck", label: "Neck & Shoulder", exp: 25 },
-  { key: "music", label: "Favorite Song", exp: 15 },
-  { key: "window", label: "Open a Window", exp: 10 },
+  { key: "stretch", label: "Stretch", exp: 20 },
+  { key: "etc", label: "Etc.", exp: 10 },
 ];
 
 export default function JournalScreen() {
@@ -269,12 +266,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
+    justifyContent: "space-between",
   },
   activityPill: {
     backgroundColor: "#5B7AE8",
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
+    width: "31%",
+    alignItems: "center",
   },
   activityPillText: {
     fontSize: 13,
