@@ -2,99 +2,113 @@
 
 ## Overview
 
-This is a **digital mental care app** (working title: "AI 시대의 무의식" / "AI Era's Unconscious") built as a cross-platform mobile application using Expo (React Native) with an Express backend. The core concept is a Tamagotchi-style virtual character that acts as a "mirror self" — reflecting the user's real-time psychological state through visual changes. Users record emotions and feelings, complete wellness quests (breathing exercises, gratitude journaling, etc.), and chat with an AI companion. The character evolves and grows based on the user's emotional engagement and mental health activities.
+**Maumie** — A digital mental wellness app for the North American market, built as a cross-platform mobile application using Expo (React Native) with an Express backend. The core concept is a Tamagotchi-style virtual companion that synchronizes with the user's emotional and feeling states in real-time. Users log emotions (psychological states) and feelings (physical body sensations), complete wellness quests, and chat with an AI companion. The character evolves and grows based on the user's engagement.
 
-The app is primarily in Korean and targets mental wellness through gamified CBT (Cognitive Behavioral Therapy) techniques, structured emotion/feeling logging, and AI-powered conversational support.
+The app is **English-first**, targeting the North American market with a premium wellness aesthetic (soft lavender/purple gradients, white cards). **Cost minimization is critical** — button-driven flows are used instead of constant AI API calls.
 
 ## User Preferences
 
-Preferred communication style: Simple, everyday language.
+- Preferred communication style: Simple, everyday language
+- User speaks Korean, prefers Korean communication
+- Design: Premium wellness aesthetic with soft lavender/purple gradient (#E8DEFF → #F5F1FF), white cards, purple accent (#7C6DC5)
+- Conversational UI is the core interaction model — button-driven flows to minimize AI costs
+- Character touch = customization (species/skins), NOT chat initiation
+- Minimize Replit development and operational costs
+
+## Current State (Feb 2026)
+
+### App Structure — 3 Tabs
+1. **Home** (`app/(tabs)/index.tsx`) — Top: Large Tamagotchi character (grows with level), Bottom: Scrollable conversational chat with button-driven flows
+2. **Journal** (`app/(tabs)/journal.tsx`) — Activity log, weekly report, stats
+3. **Growth** (`app/(tabs)/growth.tsx`) — Speech bubble forest (4-quadrant), chakra 7-level system, Soul Coins, shop & wellness links
+
+### Additional Screens
+- **Shop** (`app/shop.tsx`) — Cosmetic items purchasable with Soul Coins
+- **Wellness** (`app/wellness.tsx`) — Curated wellness recommendations
+
+### Character System
+- 5 species: cloud, star, drop, flame, leaf (+ egg stage for new characters)
+- AI-generated kawaii character illustrations in `assets/characters/`
+- Character grows visually: base 120px + 4% per level (max 2x)
+- XP bar shows progress to next level
+- Species selectable via character picker modal (tap character)
+
+### Monetization
+- Soul Coins earned via logs (5 for emotions, 5 for feelings, 2.5 for conversations)
+- Cosmetic shop items (skins, accessories, backgrounds, species)
+
+### Chakra Growth System
+- 7 levels: Root → Sacral → Solar Plexus → Heart → Throat → Third Eye → Crown
+- Each with philosophical meaning and associated color
 
 ## System Architecture
 
 ### Frontend (Expo/React Native)
 
-- **Framework**: Expo SDK 54 with React Native 0.81, using the new architecture
-- **Routing**: Expo Router v6 with file-based routing (`app/` directory), typed routes enabled
+- **Framework**: Expo SDK 54 with React Native 0.81
+- **Routing**: Expo Router v6 with file-based routing (`app/` directory)
 - **State Management**: TanStack React Query for server state; local component state with React hooks
-- **Navigation**: Tab-based layout with 5 tabs:
-  - `index` (홈/Home) — Character display with mood visualization and animated character
-  - `log` — Emotion and feeling recording with structured input (emotions, body sensations, detailed journaling)
-  - `breathe` — Guided breathing exercises and wellness quests
-  - `chat` — AI conversational companion
-  - `growth` — Character growth stats with radar chart visualization
-- **UI**: Custom styling with light/dark theme support via `useColorScheme()`, emotion-specific color palette defined in `constants/colors.ts`
-- **Animations**: React Native Reanimated and Animated API for character animations (pulse, float effects)
-- **Key Libraries**: react-native-gesture-handler, react-native-keyboard-controller, react-native-svg, expo-blur, expo-haptics
+- **UI**: Custom styling, soft lavender/purple theme defined in `constants/colors.ts`
+- **Animations**: React Native Animated API for character pulse/float effects
+- **Key Libraries**: react-native-gesture-handler, react-native-keyboard-controller, react-native-svg, expo-blur, expo-haptics, expo-linear-gradient
 
 ### Backend (Express + Node.js)
 
-- **Runtime**: Express 5 on Node.js, written in TypeScript (compiled with tsx for dev, esbuild for production)
+- **Runtime**: Express 5, TypeScript (tsx for dev, esbuild for production)
 - **API Pattern**: RESTful JSON APIs under `/api/` prefix
 - **Key Endpoints**:
-  - `GET /api/character` — Get or create default user's character
+  - `GET /api/character` — Get or create character
+  - `POST /api/character/species` — Change character species
   - `POST /api/emotions` — Log emotion check-in (awards 20 XP)
   - `POST /api/feelings` — Log feeling/body sensation (awards 25 XP)
-  - `POST /api/chat` — AI chat with OpenAI integration
-  - `POST /api/quests/:type/complete` — Complete wellness quests (awards variable XP)
-  - `GET /api/growth-data` — Fetch character growth statistics
+  - `POST /api/conversations` — Create conversation thread
+  - `POST /api/conversations/:id/messages` — Send message (streaming AI response)
+  - `POST /api/quests/:type/complete` — Complete wellness quest (awards variable XP)
+  - `GET /api/growth-data` — Fetch character growth stats
   - `GET /api/emotion-history` — Retrieve emotion log history
-- **CORS**: Dynamic origin-based CORS handling supporting Replit domains and localhost
-- **Static Serving**: In production, serves pre-built Expo web bundle; in development, proxies to Metro bundler
+  - `GET /api/shop` — List shop items
+  - `POST /api/shop/purchase` — Purchase shop item with Soul Coins
+  - `GET /api/wellness` — Wellness recommendations
 
 ### AI Integration
 
-- **Provider**: OpenAI API via Replit AI Integrations (custom base URL)
-- **Chat System**: System prompt defines an empathetic Korean-speaking companion that guides emotion/feeling recording using a structured approach (event → emotion → body sensation → pattern)
-- **Replit Integration Modules** (in `server/replit_integrations/`):
-  - `chat/` — Conversation management with database persistence
-  - `audio/` — Speech-to-text, text-to-speech, voice chat capabilities
-  - `image/` — Image generation via gpt-image-1
-  - `batch/` — Rate-limited batch processing utilities with retry logic
+- **Provider**: OpenAI API via Replit AI Integrations
+- **Cost Strategy**: AI only called for free chat when user explicitly chooses "Chat with Maumie" — all other flows are button-driven with no AI calls
 
 ### Database
 
-- **Database**: PostgreSQL via `DATABASE_URL` environment variable
+- **Database**: PostgreSQL (Replit provisioned)
 - **ORM**: Drizzle ORM with PostgreSQL dialect
 - **Schema** (`shared/schema.ts`):
-  - `users` — User accounts with personality profiles and onboarding status
-  - `characters` — Tamagotchi-style characters with evolution stage, level, XP, mood state, visual state, and multi-dimensional growth metrics (emotion, feeling, stress, spiritual)
-  - `emotionLogs` — Timestamped emotion records with intensity values
-  - `feelingLogs` — Body sensation and feeling records
-  - `quests` — Completed wellness activities
-  - `conversations` — Chat conversation threads
-  - `messages` — Individual chat messages within conversations
-- **Migrations**: Managed via `drizzle-kit push` (schema push approach, not migration files)
-- **Schema Validation**: drizzle-zod for generating Zod schemas from Drizzle tables
+  - `users`, `characters`, `emotionLogs`, `feelingLogs`, `quests`, `conversations`, `messages`
+- **Migrations**: `drizzle-kit push`
 
-### Character Growth System
+### Character Growth
 
-- Characters gain XP from user activities (emotion logging: 20 XP, feeling logging: 25 XP, quests: variable)
+- XP from activities: emotion log (20 XP), feeling log (25 XP), quests (variable)
 - Level = floor(totalExp / 100) + 1
-- Evolution stage = min(floor(level / 5) + 1, 5) — 5 evolution stages
-- Growth tracked across 4 dimensions: emotion, feeling, stress management, spiritual growth
-- Character mood and visual state stored as JSONB for flexible real-time updates
+- Evolution stage = min(floor(level / 5) + 1, 5)
+- Growth across 4 dimensions: emotion, feeling, stress, spiritual
+- Character image scales visually with level (120px base + 4% per level)
 
 ### Build & Deployment
 
-- **Development**: Two parallel processes — Expo dev server (`expo:dev`) and Express server (`server:dev`)
-- **Production Build**: Expo static web build + esbuild for server bundling
-- **Environment Variables Required**:
-  - `DATABASE_URL` — PostgreSQL connection string
-  - `AI_INTEGRATIONS_OPENAI_API_KEY` — OpenAI API key
-  - `AI_INTEGRATIONS_OPENAI_BASE_URL` — OpenAI API base URL (Replit integration)
-  - `REPLIT_DEV_DOMAIN` / `REPLIT_DOMAINS` — For CORS and API URL resolution
-  - `EXPO_PUBLIC_DOMAIN` — Client-side API domain
+- **Dev**: Two workflows — `Start Frontend` (Expo) + `Start Backend` (Express)
+- **Production**: Expo static web build + esbuild server bundle
+- **Environment**: DATABASE_URL, AI_INTEGRATIONS_OPENAI_API_KEY, AI_INTEGRATIONS_OPENAI_BASE_URL, SESSION_SECRET
 
 ### Path Aliases
 
 - `@/*` → project root
-- `@shared/*` → `./shared/*` (shared code between client and server)
+- `@shared/*` → `./shared/*`
 
-## External Dependencies
+## Recent Changes (Feb 22, 2026)
 
-- **PostgreSQL** — Primary data store (provisioned via Replit)
-- **OpenAI API** — Powers AI chat companion, accessible through Replit AI Integrations proxy
-- **Replit AI Integrations** — Provides OpenAI-compatible endpoints for chat, image generation, audio (speech-to-text, text-to-speech)
-- **Expo Services** — Build tooling and OTA updates infrastructure
-- **patch-package** — Applied via postinstall for any dependency patches (check `patches/` directory)
+- Redesigned Home screen: large character at top, scrollable chat at bottom
+- Character image size increased (120px base, grows with level)
+- XP progress bar added below character
+- Chat avatar uses character image instead of emoji
+- Species picker uses 48x48 character images
+- Character default name changed to "Maumie" (English)
+- Shop & Wellness screens updated to lavender/purple theme
+- Generated 6 kawaii character illustrations (cloud, star, drop, flame, leaf, egg)
