@@ -30,6 +30,73 @@ const CHARACTER_IMAGES: Record<string, any> = {
   egg: require("@/assets/characters/egg.png"),
 };
 
+const EVOLUTION_IMAGES: Record<string, Record<number, any>> = {
+  cloud: {
+    1: require("@/assets/characters/cloud_1.png"),
+    2: require("@/assets/characters/cloud_2.png"),
+    3: require("@/assets/characters/cloud_3.png"),
+    4: require("@/assets/characters/cloud_4.png"),
+    5: require("@/assets/characters/cloud_5.png"),
+    6: require("@/assets/characters/cloud_6.png"),
+    7: require("@/assets/characters/cloud_7.png"),
+  },
+  star: {
+    1: require("@/assets/characters/star_1.png"),
+    2: require("@/assets/characters/star_2.png"),
+    3: require("@/assets/characters/star_3.png"),
+    4: require("@/assets/characters/star_4.png"),
+    5: require("@/assets/characters/star_5.png"),
+    6: require("@/assets/characters/star_6.png"),
+    7: require("@/assets/characters/star_7.png"),
+  },
+  drop: {
+    1: require("@/assets/characters/drop_1.png"),
+    2: require("@/assets/characters/drop_2.png"),
+    3: require("@/assets/characters/drop_3.png"),
+    4: require("@/assets/characters/drop_4.png"),
+    5: require("@/assets/characters/drop_5.png"),
+    6: require("@/assets/characters/drop_6.png"),
+    7: require("@/assets/characters/drop_7.png"),
+  },
+  flame: {
+    1: require("@/assets/characters/flame_1.png"),
+    2: require("@/assets/characters/flame_2.png"),
+    3: require("@/assets/characters/flame_3.png"),
+    4: require("@/assets/characters/flame_4.png"),
+    5: require("@/assets/characters/flame_5.png"),
+    6: require("@/assets/characters/flame_6.png"),
+    7: require("@/assets/characters/flame_7.png"),
+  },
+  leaf: {
+    1: require("@/assets/characters/leaf_1.png"),
+    2: require("@/assets/characters/leaf_2.png"),
+    3: require("@/assets/characters/leaf_3.png"),
+    4: require("@/assets/characters/leaf_4.png"),
+    5: require("@/assets/characters/leaf_5.png"),
+    6: require("@/assets/characters/leaf_6.png"),
+    7: require("@/assets/characters/leaf_7.png"),
+  },
+};
+
+function getEvolutionStage(level: number): number {
+  if (level < 5) return 1;
+  if (level < 10) return 2;
+  if (level < 15) return 3;
+  if (level < 20) return 4;
+  if (level < 25) return 5;
+  if (level < 30) return 6;
+  return 7;
+}
+
+function getCharacterImage(species: string, level: number): any {
+  const stage = getEvolutionStage(level);
+  const speciesImages = EVOLUTION_IMAGES[species];
+  if (speciesImages && speciesImages[stage]) {
+    return speciesImages[stage];
+  }
+  return CHARACTER_IMAGES[species] || CHARACTER_IMAGES.egg;
+}
+
 const EMOTIONS = [
   { key: "joy", label: "Joy", emoji: "😊", color: Colors.emotions.joy },
   { key: "sadness", label: "Sadness", emoji: "😢", color: Colors.emotions.sadness },
@@ -118,7 +185,7 @@ function CharacterView({ character, onPress, showTooltip }: { character: any; on
   const stage = character?.evolutionStage || 1;
   const level = character?.level || 1;
   const charName = character?.name || "Maumie";
-  const charImage = CHARACTER_IMAGES[species] || CHARACTER_IMAGES.cloud;
+  const charImage = getCharacterImage(species, level);
 
   const growthScale = Math.min(1 + (level - 1) * LEVEL_SCALE_STEP, MAX_SCALE);
   const imgSize = BASE_CHAR_SIZE * growthScale;
@@ -482,7 +549,8 @@ export default function HomeScreen() {
   }, [inputText, isLoading, convoState, conversationId, saveLog, addMsg, queryClient]);
 
   const charSpecies = character?.species || "cloud";
-  const avatarImg = CHARACTER_IMAGES[charSpecies] || CHARACTER_IMAGES.cloud;
+  const charLevel = character?.level || 1;
+  const avatarImg = getCharacterImage(charSpecies, charLevel);
 
   const renderMessage = ({ item }: { item: ChatMsg }) => {
     const isUser = item.role === "user";
