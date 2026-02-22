@@ -140,37 +140,11 @@ export default function GrowthScreen() {
           </View>
 
           <View style={styles.chakraCard}>
-            <Text style={styles.chakraTitle}>Chakra Level</Text>
-            <View style={styles.chakraRow}>
-              {CHAKRA_LEVELS.map((c, i) => {
-                const isActive = i <= chakraIdx;
-                const isCurrent = i === chakraIdx;
-                return (
-                  <View key={c.name} style={styles.chakraItem}>
-                    <View style={[
-                      styles.chakraDot,
-                      { backgroundColor: isActive ? c.color : "#EDE8F5" },
-                      isCurrent && styles.chakraCurrent,
-                    ]}>
-                      {isCurrent && <View style={[styles.chakraPulse, { borderColor: c.color }]} />}
-                    </View>
-                    {isCurrent && (
-                      <View style={[styles.chakraLabel, { backgroundColor: c.color + "20" }]}>
-                        <Text style={[styles.chakraLabelText, { color: c.color }]}>{c.name}</Text>
-                      </View>
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-            <View style={styles.chakraInfo}>
-              <Text style={[styles.chakraName, { color: currentChakra.color }]}>{currentChakra.name} Chakra</Text>
-              <Text style={styles.chakraMeaning}>{currentChakra.meaning}</Text>
-              <View style={styles.expRow}>
-                <View style={styles.expBarBg}>
-                  <View style={[styles.expBarFill, { width: `${progress * 100}%`, backgroundColor: currentChakra.color }]} />
-                </View>
-                <Text style={styles.expText}>Lv.{level} · {totalExp % nextLevelExp}/{nextLevelExp} XP</Text>
+            <View style={styles.chakraHeader}>
+              <View style={[styles.chakraDotLarge, { backgroundColor: currentChakra.color }]} />
+              <View>
+                <Text style={styles.chakraValue}>Chakra Level ({currentChakra.name})</Text>
+                <Text style={styles.chakraSub}>{currentChakra.meaning}</Text>
               </View>
             </View>
           </View>
@@ -225,6 +199,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     marginTop: -20,
+    overflow: "hidden",
   },
   forestCard: { backgroundColor: "#F8F5FF", borderRadius: 20, padding: 16, marginBottom: 16 },
   forestTitle: { fontSize: 17, fontWeight: "700", color: "#2D2B3D", marginBottom: 12 },
@@ -236,22 +211,11 @@ const styles = StyleSheet.create({
   speechText: { fontSize: 10, fontWeight: "600", color: "#2D2B3D", textTransform: "capitalize" },
   emptyText: { fontSize: 11, color: "#C4BFD6" },
   growthValue: { fontSize: 24, fontWeight: "800", color: "#2D2B3D" },
-  chakraCard: { backgroundColor: "#F8F5FF", borderRadius: 20, padding: 20, marginBottom: 16 },
-  chakraTitle: { fontSize: 17, fontWeight: "700", color: "#2D2B3D", marginBottom: 16 },
-  chakraRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16, paddingHorizontal: 4 },
-  chakraItem: { alignItems: "center" },
-  chakraDot: { width: 20, height: 20, borderRadius: 10 },
-  chakraCurrent: { width: 28, height: 28, borderRadius: 14 },
-  chakraPulse: { width: 36, height: 36, borderRadius: 18, borderWidth: 2, position: "absolute", top: -4, left: -4, opacity: 0.4 },
-  chakraLabel: { marginTop: 6, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
-  chakraLabelText: { fontSize: 9, fontWeight: "700" },
-  chakraInfo: { alignItems: "center", gap: 4 },
-  chakraName: { fontSize: 18, fontWeight: "800" },
-  chakraMeaning: { fontSize: 13, color: "#9B97B0" },
-  expRow: { width: "100%", marginTop: 8 },
-  expBarBg: { height: 6, backgroundColor: "#EDE8F5", borderRadius: 3, overflow: "hidden" },
-  expBarFill: { height: "100%", borderRadius: 3 },
-  expText: { fontSize: 12, color: "#9B97B0", textAlign: "center", marginTop: 4 },
+  chakraCard: { backgroundColor: "#F8F5FF", borderRadius: 20, padding: 20, marginBottom: 12 },
+  chakraHeader: { flexDirection: "row", alignItems: "center", gap: 14 },
+  chakraDotLarge: { width: 36, height: 36, borderRadius: 18 },
+  chakraValue: { fontSize: 16, fontWeight: "800", color: "#2D2B3D" },
+  chakraSub: { fontSize: 13, color: "#9B97B0", marginTop: 2 },
   coinCard: { backgroundColor: "#F8F5FF", borderRadius: 20, padding: 20, marginBottom: 12 },
   coinHeader: { flexDirection: "row", alignItems: "center", gap: 14 },
   coinValue: { fontSize: 28, fontWeight: "800", color: "#2D2B3D" },
