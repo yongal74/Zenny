@@ -62,6 +62,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const log = await storage.createEmotionLog({ userId: user.id, emotions, tags, note });
       const char = await ensureCharacter(user.id);
       await storage.addExp(char.id, 20, "emotion");
+      await storage.addSoulCoins(user.id, 5, "emotion_log");
+      const isPushCheckIn = req.body.fromPush === true;
+      if (isPushCheckIn) {
+        await storage.addSoulCoins(user.id, 10, "push_checkin");
+      }
       res.json(log);
     } catch (e) {
       console.error(e);
@@ -87,6 +92,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const log = await storage.createFeelingLog({ userId: user.id, bodyParts, sensations, energyLevel, freeText });
       const char = await ensureCharacter(user.id);
       await storage.addExp(char.id, 20, "feeling");
+      await storage.addSoulCoins(user.id, 5, "feeling_log");
+      const isPushCheckIn = req.body.fromPush === true;
+      if (isPushCheckIn) {
+        await storage.addSoulCoins(user.id, 10, "push_checkin");
+      }
       res.json(log);
     } catch (e) {
       console.error(e);

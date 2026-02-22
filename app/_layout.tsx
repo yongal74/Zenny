@@ -42,6 +42,7 @@ function RootLayoutNav() {
       <Stack.Screen name="wellness" options={{ headerShown: false }} />
       <Stack.Screen name="meditation" options={{ headerShown: false }} />
       <Stack.Screen name="breathing" options={{ headerShown: false }} />
+      <Stack.Screen name="settings" options={{ headerShown: false }} />
     </Stack>
   );
 }

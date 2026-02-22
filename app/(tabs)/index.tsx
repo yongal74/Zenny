@@ -20,6 +20,8 @@ import { useRouter } from "expo-router";
 import Colors from "@/constants/colors";
 import { getApiUrl } from "@/lib/api";
 import { LinearGradient } from "expo-linear-gradient";
+import { useShakeDetection } from "@/hooks/useShakeDetection";
+import * as Haptics from "expo-haptics";
 
 const CHARACTER_IMAGES: Record<string, any> = {
   cloud: require("@/assets/characters/cloud.png"),
@@ -239,6 +241,16 @@ export default function HomeScreen() {
   const [conversationId, setConversationId] = useState<number | null>(null);
   const [showCharacterPicker, setShowCharacterPicker] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
+
+  const handleShake = useCallback(() => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setMessages([]);
+    setConvoState("greeting");
+    setSelectedEmotion(null);
+    setSelectedFeeling(null);
+  }, []);
+
+  useShakeDetection(handleShake);
 
   const { data: character } = useQuery({
     queryKey: ["character"],
@@ -663,6 +675,13 @@ export default function HomeScreen() {
         colors={["#5B7AE8", "#7B6BC5", "#9B7FD4"]}
         style={[styles.topArea, { paddingTop: topInset + 4 }]}
       >
+        <TouchableOpacity
+          style={styles.settingsIcon}
+          onPress={() => router.push("/settings")}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="settings-outline" size={22} color="rgba(255,255,255,0.8)" />
+        </TouchableOpacity>
         <CharacterView character={character} onPress={() => { setShowCharacterPicker(true); setShowTooltip(false); }} showTooltip={showTooltip} />
       </LinearGradient>
 
@@ -818,6 +837,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   xpLabel: { fontSize: 10, fontWeight: "600", color: "rgba(255,255,255,0.7)" },
+  settingsIcon: {
+    position: "absolute",
+    top: 0,
+    right: 16,
+    zIndex: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   chatSection: {
     flex: 1,
     backgroundColor: "#FFFFFF",
