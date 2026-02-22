@@ -38,6 +38,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/character/species", async (req, res) => {
+    try {
+      const user = await ensureDefaultUser();
+      const char = await ensureCharacter(user.id);
+      const { species } = req.body;
+      if (!["cloud", "star", "drop", "flame", "leaf"].includes(species)) {
+        return res.status(400).json({ error: "Invalid species" });
+      }
+      await storage.updateCharacterSpecies(char.id, species);
+      const updated = await storage.getCharacterByUserId(user.id);
+      res.json(updated);
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: "Failed to update species" });
+    }
+  });
+
   app.post("/api/emotions", async (req, res) => {
     try {
       const user = await ensureDefaultUser();

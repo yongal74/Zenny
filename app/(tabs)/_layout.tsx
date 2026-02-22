@@ -16,15 +16,21 @@ export default function TabLayout() {
         tabBarStyle: {
           position: "absolute",
           backgroundColor: colors.surface,
-          borderTopWidth: 0,
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
           elevation: 0,
           height: Platform.OS === "web" ? 84 : 56,
           paddingBottom: Platform.OS === "web" ? 34 : 6,
           paddingTop: 6,
+          shadowColor: colors.tint,
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 12,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: "600",
+          letterSpacing: 0.3,
         },
       }}
     >
@@ -38,29 +44,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="log"
+        name="journal"
         options={{
-          title: "Log",
+          title: "Journal",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="journal" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="breathe"
-        options={{
-          title: "Breathe",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="leaf" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="chat"
-        options={{
-          title: "Chat",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubbles" size={size} color={color} />
+            <Ionicons name="book" size={size} color={color} />
           ),
         }}
       />
@@ -69,7 +57,7 @@ export default function TabLayout() {
         options={{
           title: "Growth",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="stats-chart" size={size} color={color} />
+            <Ionicons name="sparkles" size={size} color={color} />
           ),
         }}
       />

@@ -42,6 +42,10 @@ export const storage = {
     return char;
   },
 
+  async updateCharacterSpecies(characterId: number, species: string) {
+    await db.update(characters).set({ species }).where(eq(characters.id, characterId));
+  },
+
   async addExp(characterId: number, exp: number, dimension?: "emotion" | "feeling" | "stress" | "spiritual") {
     const [char] = await db.select().from(characters).where(eq(characters.id, characterId));
     if (!char) return null;
