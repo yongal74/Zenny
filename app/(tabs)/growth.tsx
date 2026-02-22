@@ -165,7 +165,7 @@ export default function GrowthScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.linkTitle}>Soul Shop</Text>
-              <Text style={styles.linkDesc}>Customize your Maumie</Text>
+              <Text style={styles.linkDesc}>Customize your Maumi</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
           </TouchableOpacity>

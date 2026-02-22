@@ -15,11 +15,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SLIDES = [
   {
-    title: "Welcome to\nMaumie",
+    title: "Welcome to\nMaumi",
     subtitle: "Your Personal Wellness Companion",
     bullets: [
       "In the AI era, your emotions and inner world are your most valuable assets.",
-      "Maumie helps you understand and manage them — one check-in at a time.",
+      "Maumi helps you understand and manage them — one check-in at a time.",
     ],
     icon: "heart-circle" as const,
     color: "#FF6B9D",
@@ -39,7 +39,7 @@ const SLIDES = [
     title: "Grow\nTogether",
     subtitle: "Your Tamagotchi Evolves With You",
     bullets: [
-      "Your Maumie companion mirrors your growth journey.",
+      "Your Maumi companion mirrors your growth journey.",
       "As you meditate, breathe, and check in with yourself, your character levels up and evolves.",
       "7 stages of transformation for each species.",
     ],
@@ -69,7 +69,7 @@ const SLIDES = [
     color: "#FFB347",
   },
   {
-    title: "Customize\nYour Maumie",
+    title: "Customize\nYour Maumi",
     subtitle: "80+ Items to Express Yourself",
     bullets: [
       "Hats, glasses, clothes, wings, pets, and more.",

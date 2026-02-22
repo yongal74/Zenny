@@ -223,7 +223,7 @@ export default function ShopScreen() {
                 <Ionicons name="close-circle" size={28} color="#9B97B0" />
               </TouchableOpacity>
             </View>
-            <Text style={styles.modalDesc}>Soul Coins let you customize your Maumie with accessories, pets, and more!</Text>
+            <Text style={styles.modalDesc}>Soul Coins let you customize your Maumi with accessories, pets, and more!</Text>
             <View style={styles.currentCoins}>
               <Ionicons name="diamond" size={20} color="#FFD700" />
               <Text style={styles.currentCoinsText}>{character?.soulCoins || 0} coins</Text>

@@ -186,7 +186,7 @@ function CharacterView({ character, onPress, showTooltip }: { character: any; on
   const species = character?.species || "cloud";
   const stage = character?.evolutionStage || 1;
   const level = character?.level || 1;
-  const charName = character?.name || "Maumie";
+  const charName = character?.name || "Maumi";
   const charImage = getCharacterImage(species, level);
 
   const growthScale = Math.min(1 + (level - 1) * LEVEL_SCALE_STEP, MAX_SCALE);
@@ -270,7 +270,7 @@ export default function HomeScreen() {
   useEffect(() => {
     if (messages.length === 0) {
       const hour = new Date().getHours();
-      const charName = character?.name || "Maumie";
+      const charName = character?.name || "Maumi";
 
       const morningGreetings = [
         `Good morning! ${charName} is happy to see you. How are you today? 💜`,
@@ -415,10 +415,10 @@ export default function HomeScreen() {
         setTimeout(() => {
           addMsg({
             role: "assistant",
-            content: `Amazing! You earned +${data.exp} XP and +5 Soul Coins! 🎉\n\nYour Maumie grew a little from this. Keep it up! 💜`,
+            content: `Amazing! You earned +${data.exp} XP and +5 Soul Coins! 🎉\n\nYour Maumi grew a little from this. Keep it up! 💜`,
             buttons: [
               { label: "Check in again", emoji: "🔄", action: "restart" },
-              { label: "Chat with Maumie", emoji: "💬", action: "free_chat" },
+              { label: "Chat with Maumi", emoji: "💬", action: "free_chat" },
             ],
           });
           setConvoState("reward");
@@ -433,7 +433,7 @@ export default function HomeScreen() {
             content: "No worries at all! Remember, every small step counts. I'm always here 💜",
             buttons: [
               { label: "Check in again", emoji: "🔄", action: "restart" },
-              { label: "Chat with Maumie", emoji: "💬", action: "free_chat" },
+              { label: "Chat with Maumi", emoji: "💬", action: "free_chat" },
             ],
           });
         }, 400);
@@ -502,7 +502,7 @@ export default function HomeScreen() {
       const suggested = ACTIVITIES[Math.floor(Math.random() * ACTIVITIES.length)];
       addMsg({
         role: "assistant",
-        content: `Logged! Your Maumie felt that 💜\n\nHere's something that might help:`,
+        content: `Logged! Your Maumi felt that 💜\n\nHere's something that might help:`,
         buttons: [
           { label: `${suggested.emoji} ${suggested.label}`, emoji: suggested.emoji, action: "do_activity", data: suggested },
           { label: "Show me more options", emoji: "📋", action: "show_all_activities" },
@@ -739,7 +739,7 @@ export default function HomeScreen() {
       {showCharacterPicker && (
         <View style={styles.pickerOverlay}>
           <View style={styles.pickerCard}>
-            <Text style={styles.pickerTitle}>Choose Your Maumie</Text>
+            <Text style={styles.pickerTitle}>Choose Your Maumi</Text>
             <View style={styles.speciesRow}>
               {[
                 { key: "cloud", label: "Cloud" },

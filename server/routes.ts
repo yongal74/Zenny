@@ -21,7 +21,7 @@ async function ensureDefaultUser() {
 async function ensureCharacter(userId: string) {
   let char = await storage.getCharacterByUserId(userId);
   if (!char) {
-    char = await storage.createCharacter({ userId, name: "Maumie", species: "cloud" });
+    char = await storage.createCharacter({ userId, name: "Maumi", species: "cloud" });
   }
   return char;
 }
@@ -136,7 +136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const prevMessages = await storage.getConversationMessages(convId);
 
-      const systemPrompt = `You are "Maumie," the user's emotional companion and inner-self mirror.
+      const systemPrompt = `You are "Maumi," the user's emotional companion and inner-self mirror.
 
 You help distinguish between EMOTIONS and FEELINGS:
 - Emotions: psychological states — Joy, Sadness, Anger, Anxiety, Calm, Disgust, Surprise
