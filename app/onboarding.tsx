@@ -4,9 +4,8 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Dimensions,
   Platform,
-  Image,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,48 +13,69 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const { width } = Dimensions.get("window");
-
 const SLIDES = [
   {
-    title: "Welcome to Maumie",
+    title: "Welcome to\nMaumie",
     subtitle: "Your Personal Wellness Companion",
-    body: "In the AI era, your emotions and inner world are your most valuable assets. Maumie helps you understand and manage them — one check-in at a time.",
+    bullets: [
+      "In the AI era, your emotions and inner world are your most valuable assets.",
+      "Maumie helps you understand and manage them — one check-in at a time.",
+    ],
     icon: "heart-circle" as const,
     color: "#FF6B9D",
   },
   {
-    title: "Emotions & Feelings",
+    title: "Emotions &\nFeelings",
     subtitle: "Two Sides of Your Inner World",
-    body: "Log your emotions (psychological states like joy, sadness, anxiety) and feelings (physical sensations in your body). Understanding both is the key to true self-awareness.",
+    bullets: [
+      "Emotions are psychological states — joy, sadness, anxiety, anger.",
+      "Feelings are physical body sensations — tight chest, heavy shoulders, butterflies.",
+      "Understanding both is the key to true self-awareness.",
+    ],
     icon: "sparkles" as const,
     color: "#A78BFA",
   },
   {
-    title: "Grow Together",
+    title: "Grow\nTogether",
     subtitle: "Your Tamagotchi Evolves With You",
-    body: "Your Maumie companion mirrors your growth. As you meditate, breathe, and check in with yourself, your character levels up and evolves — just like you.",
+    bullets: [
+      "Your Maumie companion mirrors your growth journey.",
+      "As you meditate, breathe, and check in with yourself, your character levels up and evolves.",
+      "7 stages of transformation for each species.",
+    ],
     icon: "trending-up" as const,
     color: "#7ED957",
   },
   {
-    title: "Meditation & Breathing",
+    title: "Meditation &\nBreathing",
     subtitle: "Guided Wellness Practices",
-    body: "Access guided breathing exercises and calming meditation music. These ancient practices, backed by modern neuroscience, help you build resilience and inner peace.",
+    bullets: [
+      "Calming meditation music with nature sounds and healing tones.",
+      "Guided breathing exercises backed by neuroscience.",
+      "Ancient practices meet modern brain science for inner peace.",
+    ],
     icon: "leaf" as const,
     color: "#5B7AE8",
   },
   {
-    title: "Deep Growth",
+    title: "Deep\nGrowth",
     subtitle: "Philosophy · Psychology · Neuroscience · Spirituality",
-    body: "Grow not just emotionally, but intellectually. Explore insights from philosophy, psychology, brain science, and spiritual traditions that expand your understanding of yourself.",
+    bullets: [
+      "Grow not just emotionally, but intellectually.",
+      "Explore insights from philosophy, psychology, brain science, and spiritual traditions.",
+      "The last frontier in the AI era: your unconscious mind and emotions.",
+    ],
     icon: "book" as const,
     color: "#FFB347",
   },
   {
-    title: "Customize Your Maumie",
+    title: "Customize\nYour Maumie",
     subtitle: "80+ Items to Express Yourself",
-    body: "Dress up your companion with hats, glasses, clothes, wings, pets, and more. Earn Soul Coins through wellness activities and make your Maumie uniquely yours.",
+    bullets: [
+      "Hats, glasses, clothes, wings, pets, and more.",
+      "Earn Soul Coins through wellness activities.",
+      "Make your companion uniquely yours.",
+    ],
     icon: "color-palette" as const,
     color: "#FF9A8B",
   },
@@ -93,7 +113,7 @@ export default function OnboardingScreen() {
       <View style={styles.topBar}>
         {currentSlide > 0 ? (
           <TouchableOpacity onPress={() => setCurrentSlide((p) => p - 1)} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
+            <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
         ) : (
           <View style={{ width: 40 }} />
@@ -105,12 +125,23 @@ export default function OnboardingScreen() {
 
       <View style={styles.content}>
         <View style={[styles.iconCircle, { backgroundColor: slide.color + "25" }]}>
-          <Ionicons name={slide.icon} size={64} color={slide.color} />
+          <Ionicons name={slide.icon} size={56} color={slide.color} />
         </View>
 
         <Text style={styles.title}>{slide.title}</Text>
-        <Text style={styles.subtitle}>{slide.subtitle}</Text>
-        <Text style={styles.body}>{slide.body}</Text>
+
+        <View style={styles.subtitleWrap}>
+          <Text style={styles.subtitle}>{slide.subtitle}</Text>
+        </View>
+
+        <View style={styles.bulletCard}>
+          {slide.bullets.map((b, i) => (
+            <View key={i} style={styles.bulletRow}>
+              <View style={[styles.bulletDot, { backgroundColor: slide.color }]} />
+              <Text style={styles.bulletText}>{b}</Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       <View style={[styles.bottomArea, { paddingBottom: bottomInset + 24 }]}>
@@ -131,11 +162,15 @@ export default function OnboardingScreen() {
             {isLast ? "Get Started" : "Next"}
           </Text>
           <Ionicons
-            name={isLast ? "checkmark-circle" : "arrow-forward"}
+            name={isLast ? "checkmark-circle" : "chevron-forward"}
             size={20}
             color="#5B7AE8"
           />
         </TouchableOpacity>
+
+        <View style={styles.pageCounter}>
+          <Text style={styles.pageCounterText}>{currentSlide + 1} / {SLIDES.length}</Text>
+        </View>
       </View>
     </LinearGradient>
   );
@@ -169,41 +204,68 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 40,
+    paddingHorizontal: 32,
   },
   iconCircle: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 32,
+    marginBottom: 24,
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "800",
     color: "#FFFFFF",
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 10,
     letterSpacing: -0.5,
+    lineHeight: 38,
+  },
+  subtitleWrap: {
+    backgroundColor: "rgba(255,255,255,0.15)",
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginBottom: 24,
   },
   subtitle: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "rgba(255,255,255,0.75)",
-    textAlign: "center",
-    marginBottom: 20,
-    letterSpacing: 0.3,
-  },
-  body: {
-    fontSize: 15,
-    lineHeight: 24,
+    fontSize: 13,
+    fontWeight: "700",
     color: "rgba(255,255,255,0.9)",
     textAlign: "center",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+  },
+  bulletCard: {
+    backgroundColor: "rgba(255,255,255,0.12)",
+    borderRadius: 20,
+    padding: 20,
+    width: "100%",
+    gap: 14,
+  },
+  bulletRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  bulletDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginTop: 6,
+  },
+  bulletText: {
+    flex: 1,
+    fontSize: 15,
+    lineHeight: 22,
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "500",
   },
   bottomArea: {
     paddingHorizontal: 32,
-    gap: 24,
+    gap: 16,
   },
   dots: {
     flexDirection: "row",
@@ -238,5 +300,13 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
     color: "#5B7AE8",
+  },
+  pageCounter: {
+    alignItems: "center",
+  },
+  pageCounterText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "rgba(255,255,255,0.5)",
   },
 });

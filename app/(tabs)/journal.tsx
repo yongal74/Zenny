@@ -17,7 +17,7 @@ import { getApiUrl } from "@/lib/api";
 import { LinearGradient } from "expo-linear-gradient";
 
 const ACTIVITIES = [
-  { key: "breath", label: "1-Min Breath", exp: 30 },
+  { key: "breath", label: "Breathing", exp: 30 },
   { key: "meditation", label: "Meditation", exp: 25 },
   { key: "gratitude", label: "Gratitude", exp: 25 },
   { key: "water", label: "Drink Water", exp: 15 },

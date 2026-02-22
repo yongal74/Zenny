@@ -243,6 +243,22 @@ Conversation style:
     }
   });
 
+  app.post("/api/coins/add", async (req, res) => {
+    try {
+      const user = await ensureDefaultUser();
+      const { amount, source } = req.body;
+      if (!amount || amount <= 0) {
+        return res.status(400).json({ error: "Invalid amount" });
+      }
+      await storage.addSoulCoins(user.id, amount, source || "purchase");
+      const character = await storage.getCharacterByUserId(user.id);
+      res.json({ success: true, soulCoins: character?.soulCoins });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: "Failed to add coins" });
+    }
+  });
+
   // Wellness recommendations
   app.get("/api/wellness", async (req, res) => {
     try {

@@ -16,6 +16,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import Colors from "@/constants/colors";
 import { getApiUrl } from "@/lib/api";
 import { LinearGradient } from "expo-linear-gradient";
@@ -51,7 +52,7 @@ const FEELINGS = [
 ];
 
 const ACTIVITIES = [
-  { key: "breath", label: "1-Min Breath", emoji: "🌬️", exp: 30 },
+  { key: "breath", label: "Breathing", emoji: "🌬️", exp: 30 },
   { key: "meditation", label: "Meditation", emoji: "🧘", exp: 25 },
   { key: "gratitude", label: "Gratitude", emoji: "📝", exp: 25 },
   { key: "water", label: "Drink Water", emoji: "💧", exp: 15 },
@@ -157,6 +158,7 @@ export default function HomeScreen() {
   const colors = Colors.light;
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
+  const router = useRouter();
   const flatListRef = useRef<FlatList>(null);
   const topInset = Platform.OS === "web" ? 67 : insets.top;
   const bottomInset = Platform.OS === "web" ? 34 : Math.max(insets.bottom, 8);
@@ -195,6 +197,8 @@ export default function HomeScreen() {
           { label: "My Emotions", action: "start_emotion" },
           { label: "My Feelings", action: "start_feeling" },
           { label: "Just Chat", action: "free_chat" },
+          { label: "Meditation", action: "go_meditation" },
+          { label: "Breathing", action: "go_breathing" },
         ],
         isMainMenu: true,
       });
@@ -335,6 +339,14 @@ export default function HomeScreen() {
         }, 400);
         break;
 
+      case "go_meditation":
+        router.push("/meditation");
+        break;
+
+      case "go_breathing":
+        router.push("/breathing");
+        break;
+
       case "restart":
         addMsg({ role: "user", content: "Let me check in again" });
         setSelectedEmotion(null);
@@ -347,6 +359,8 @@ export default function HomeScreen() {
               { label: "My Emotions", action: "start_emotion" },
               { label: "My Feelings", action: "start_feeling" },
               { label: "Just Chat", action: "free_chat" },
+              { label: "Meditation", action: "go_meditation" },
+              { label: "Breathing", action: "go_breathing" },
             ],
             isMainMenu: true,
           });
@@ -713,7 +727,7 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     gap: 6,
     justifyContent: "flex-start",
-    flexWrap: "nowrap",
+    flexWrap: "wrap",
   },
   actionBtn: {
     flexDirection: "row", alignItems: "center", gap: 6,

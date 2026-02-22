@@ -186,7 +186,7 @@ export default function BreathingScreen() {
       <LinearGradient colors={["#5B7AE8", "#7B6BC5", "#9B7FD4"]} style={[styles.container, { paddingTop: topInset }]}>
         <View style={styles.activeHeader}>
           <TouchableOpacity onPress={stopExercise} style={styles.backBtn}>
-            <Ionicons name="close" size={22} color="#FFFFFF" />
+            <Ionicons name="close" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.activeTitle}>{selectedExercise.title}</Text>
           <Text style={styles.cycleText}>Cycle {currentCycle + 1}/{selectedExercise.cycles}</Text>
@@ -239,7 +239,7 @@ export default function BreathingScreen() {
       >
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
+            <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Breathing Guide</Text>
           <View style={{ width: 40 }} />

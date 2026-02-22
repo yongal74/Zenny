@@ -48,7 +48,7 @@ export default function WellnessScreen() {
     <View style={[styles.container, { backgroundColor: colors.background, paddingTop: topInset }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+          <Ionicons name="chevron-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Wellness Picks</Text>
       </View>

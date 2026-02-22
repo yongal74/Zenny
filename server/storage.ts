@@ -179,6 +179,15 @@ export const storage = {
     await db.update(userItems).set({ equipped: true }).where(and(eq(userItems.userId, userId), eq(userItems.itemId, itemId)));
   },
 
+  async addSoulCoins(userId: string, amount: number, source: string) {
+    const [char] = await db.select().from(characters).where(eq(characters.userId, userId));
+    if (!char) throw new Error("Character not found");
+    await db.update(characters).set({ soulCoins: (char.soulCoins || 0) + amount }).where(eq(characters.id, char.id));
+    await db.insert(coinTransactions).values({
+      userId, amount, type: source, description: `Added ${amount} Soul Coins (${source})`,
+    });
+  },
+
   async getWellnessRecommendations(emotionTrigger?: string) {
     if (emotionTrigger) {
       return db.select().from(wellnessRecommendations)
