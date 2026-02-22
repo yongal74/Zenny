@@ -599,31 +599,53 @@ export default function HomeScreen() {
           </View>
         </View>
         {item.buttons && item.buttons.length > 0 && (
-          <View style={[styles.buttonsWrap, item.isMainMenu && styles.mainMenuWrap]}>
-            {item.buttons.map((btn, i) => (
-              <TouchableOpacity
-                key={i}
-                style={[
-                  styles.actionBtn,
-                  item.isMainMenu && styles.mainMenuBtn,
-                ]}
-                onPress={() => {
-                  if (btn.action === "show_all_activities") {
-                    handleShowAllActivities();
-                  } else {
-                    handleButtonPress(btn.action, btn.data);
-                  }
-                }}
-                activeOpacity={0.7}
-              >
-                {btn.emoji && <Text style={styles.actionEmoji}>{btn.emoji}</Text>}
-                <Text style={[
-                  styles.actionLabel,
-                  item.isMainMenu && styles.mainMenuLabel,
-                ]}>{btn.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          item.isMainMenu ? (
+            <View style={styles.mainMenuWrap}>
+              <View style={styles.mainMenuRow}>
+                {item.buttons.filter(b => !["go_meditation","go_breathing"].includes(b.action)).map((btn, i) => (
+                  <TouchableOpacity
+                    key={i}
+                    style={[styles.actionBtn, styles.mainMenuBtn]}
+                    onPress={() => handleButtonPress(btn.action, btn.data)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.actionLabel, styles.mainMenuLabel]}>{btn.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {item.buttons.filter(b => ["go_meditation","go_breathing"].includes(b.action)).map((btn, i) => (
+                <TouchableOpacity
+                  key={`full-${i}`}
+                  style={[styles.actionBtn, styles.mainMenuBtnFull]}
+                  onPress={() => handleButtonPress(btn.action, btn.data)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name={btn.action === "go_meditation" ? "musical-notes" : "leaf"} size={16} color="#FFFFFF" />
+                  <Text style={[styles.actionLabel, styles.mainMenuLabel]}>{btn.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : (
+            <View style={styles.buttonsWrap}>
+              {item.buttons.map((btn, i) => (
+                <TouchableOpacity
+                  key={i}
+                  style={styles.actionBtn}
+                  onPress={() => {
+                    if (btn.action === "show_all_activities") {
+                      handleShowAllActivities();
+                    } else {
+                      handleButtonPress(btn.action, btn.data);
+                    }
+                  }}
+                  activeOpacity={0.7}
+                >
+                  {btn.emoji && <Text style={styles.actionEmoji}>{btn.emoji}</Text>}
+                  <Text style={styles.actionLabel}>{btn.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )
         )}
       </View>
     );
@@ -826,8 +848,10 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
     gap: 6,
-    justifyContent: "flex-start",
-    flexWrap: "wrap",
+  },
+  mainMenuRow: {
+    flexDirection: "row",
+    gap: 6,
   },
   actionBtn: {
     flexDirection: "row", alignItems: "center", gap: 6,
@@ -844,6 +868,14 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     borderRadius: 20,
     marginHorizontal: 0,
+  },
+  mainMenuBtnFull: {
+    justifyContent: "center",
+    backgroundColor: "#7C6DC5",
+    borderColor: "#7C6DC5",
+    borderWidth: 0,
+    paddingVertical: 12,
+    borderRadius: 20,
   },
   actionEmoji: { fontSize: 14 },
   actionLabel: { fontSize: 13, fontWeight: "600", color: "#7C6DC5" },
