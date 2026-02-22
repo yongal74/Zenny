@@ -15,14 +15,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { getApiUrl } from "@/lib/api";
 
-type Category = "all" | "skin" | "accessory" | "background" | "species";
+type Category = "all" | "hat" | "glasses" | "sunglasses" | "clothes" | "bag" | "badge" | "wings" | "pet";
 
 const CATEGORIES: { key: Category; label: string; icon: string }[] = [
   { key: "all", label: "All", icon: "grid" },
-  { key: "skin", label: "Skins", icon: "color-palette" },
-  { key: "accessory", label: "Accessories", icon: "glasses" },
-  { key: "background", label: "Backgrounds", icon: "image" },
-  { key: "species", label: "Species", icon: "paw" },
+  { key: "hat", label: "Hats", icon: "baseball" },
+  { key: "glasses", label: "Glasses", icon: "glasses" },
+  { key: "sunglasses", label: "Sunglasses", icon: "sunny" },
+  { key: "clothes", label: "Clothes", icon: "shirt" },
+  { key: "bag", label: "Bags", icon: "bag-handle" },
+  { key: "badge", label: "Badges", icon: "ribbon" },
+  { key: "wings", label: "Wings", icon: "sparkles" },
+  { key: "pet", label: "Pets", icon: "paw" },
 ];
 
 const RARITY_COLORS: Record<string, string> = {
