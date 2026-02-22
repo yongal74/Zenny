@@ -102,8 +102,24 @@ The app is **English-first**, targeting the North American market with a premium
 - `@/*` → project root
 - `@shared/*` → `./shared/*`
 
+### Additional Screens
+- **Shop** (`app/shop.tsx`) — 80 items across 8 categories (hat, glasses, sunglasses, clothes, bag, badge, wings, pet) with 10 each
+- **Wellness** (`app/wellness.tsx`) — Curated wellness recommendations
+- **Meditation** (`app/meditation.tsx`) — Meditation music player with nature/music/ambient/focus categories
+- **Breathing** (`app/breathing.tsx`) — Guided breathing exercises (4-7-8, Box, Energizing, Deep Calm, Sleep)
+- **Onboarding** (`app/onboarding.tsx`) — 6-slide intro: welcome, emotions/feelings, growth, meditation, deep growth, customization
+
+### Activity Log
+- 6 activities in 2 rows of 3: 1-Min Breath, Meditation, Gratitude, Drink Water, Stretch, Etc.
+
 ## Recent Changes (Feb 22, 2026)
 
+- Activity log: Removed Look Far Away, Neck & Shoulder, Favorite Song, Open a Window; added Etc.; arranged 6 items in 2 rows of 3
+- Shop expanded to 80 items across 8 categories (hats, glasses, sunglasses, clothes, bags, badges, wings, pets)
+- Added onboarding flow (6 screens explaining app concept, emotions/feelings, growth, meditation, customization)
+- Added meditation music screen with 12 tracks across 4 categories
+- Added breathing guide screen with 5 guided exercises (4-7-8, Box, Energizing, Deep Calm, Sleep)
+- Growth tab now links to Meditation Music and Breathing Guide
 - Redesigned Home screen: large character at top, scrollable chat at bottom
 - Character image size increased (120px base, grows with level)
 - XP progress bar added below character
