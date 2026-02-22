@@ -257,9 +257,41 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (messages.length === 0) {
+      const hour = new Date().getHours();
+      const charName = character?.name || "Maumie";
+
+      const morningGreetings = [
+        `Good morning! ${charName} is happy to see you. How are you today? 💜`,
+        `Rise and shine! A new day, a new chance to grow. What's on your mind? 🌅`,
+        `Morning! Your body and mind are refreshed. Let's check in together. ☀️`,
+      ];
+      const afternoonGreetings = [
+        `Hey there! How's your afternoon going? ${charName} is here for you. 💜`,
+        `Taking a break? Perfect time for a quick check-in with yourself. 🌤️`,
+        `Good afternoon! Let's take a moment to pause and reflect. ✨`,
+      ];
+      const eveningGreetings = [
+        `Good evening! How was your day? ${charName} wants to hear all about it. 🌙`,
+        `Winding down? Let's reflect on today together. You did great. 💫`,
+        `Evening time. A perfect moment to check in with your feelings. 🌃`,
+      ];
+      const nightGreetings = [
+        `Still up? ${charName} is here to keep you company. How are you feeling? 🌌`,
+        `Late night thoughts? Let's process them together. You're not alone. 💜`,
+        `Can't sleep? A quick breathing exercise might help. I'm right here. 🌠`,
+      ];
+
+      let greetings;
+      if (hour >= 5 && hour < 12) greetings = morningGreetings;
+      else if (hour >= 12 && hour < 17) greetings = afternoonGreetings;
+      else if (hour >= 17 && hour < 22) greetings = eveningGreetings;
+      else greetings = nightGreetings;
+
+      const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+
       addMsg({
         role: "assistant",
-        content: "Hey there! How are you doing today? 💜",
+        content: greeting,
         buttons: [
           { label: "My Emotions", action: "start_emotion" },
           { label: "My Feelings", action: "start_feeling" },
