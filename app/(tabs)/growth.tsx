@@ -8,6 +8,7 @@ import {
   Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import Svg, { Polygon, Circle, Line, Text as SvgText } from "react-native-svg";
@@ -48,6 +49,7 @@ function RadarChart({ data }: { data: { emotion: number; feeling: number; stress
 export default function GrowthScreen() {
   const colors = Colors.light;
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const topInset = Platform.OS === "web" ? 67 : insets.top;
 
   const { data: character } = useQuery({
@@ -124,9 +126,26 @@ export default function GrowthScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={[styles.shopBtn, { backgroundColor: colors.tint }]}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Soul Coins</Text>
+          <View style={styles.coinRow}>
+            <Text style={{ fontSize: 28 }}>🪙</Text>
+            <Text style={[styles.coinValue, { color: colors.tint }]}>{character?.soulCoins || 0}</Text>
+            <Text style={[styles.coinLabel, { color: colors.textSecondary }]}>coins earned</Text>
+          </View>
+          <Text style={[styles.coinHint, { color: colors.textSecondary }]}>
+            Earn coins by logging emotions, feelings, and completing quests!
+          </Text>
+        </View>
+
+        <TouchableOpacity style={[styles.shopBtn, { backgroundColor: colors.tint }]} onPress={() => router.push("/shop")}>
           <Ionicons name="storefront" size={20} color="#1B2A4A" />
           <Text style={styles.shopBtnText}>Soul Shop</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.wellnessBtn, { backgroundColor: colors.accent }]} onPress={() => router.push("/wellness")}>
+          <Ionicons name="heart-circle" size={20} color="#1B2A4A" />
+          <Text style={styles.shopBtnText}>Wellness Picks</Text>
         </TouchableOpacity>
 
         <View style={{ height: 100 }} />
@@ -155,7 +174,15 @@ const styles = StyleSheet.create({
   reportHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   letterCard: { borderRadius: 12, padding: 16 },
   letterText: { fontSize: 14, lineHeight: 22, textAlign: "center" },
+  coinRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  coinValue: { fontSize: 28, fontWeight: "700" },
+  coinLabel: { fontSize: 14 },
+  coinHint: { fontSize: 12, marginTop: 8, lineHeight: 18 },
   shopBtn: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    gap: 8, paddingVertical: 14, borderRadius: 14, marginBottom: 8,
+  },
+  wellnessBtn: {
     flexDirection: "row", alignItems: "center", justifyContent: "center",
     gap: 8, paddingVertical: 14, borderRadius: 14, marginBottom: 8,
   },

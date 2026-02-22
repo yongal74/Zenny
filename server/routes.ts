@@ -21,7 +21,7 @@ async function ensureDefaultUser() {
 async function ensureCharacter(userId: string) {
   let char = await storage.getCharacterByUserId(userId);
   if (!char) {
-    char = await storage.createCharacter({ userId, name: "마음이", species: "cloud" });
+    char = await storage.createCharacter({ userId, name: "Maumie", species: "cloud" });
   }
   return char;
 }
@@ -109,16 +109,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const prevMessages = await storage.getConversationMessages(convId);
 
-      const systemPrompt = `너는 사용자의 마음 친구이자 정서적 동반자 "마음이"야.
-감정과 느낌을 구분해서 대화해줘:
-- 감정(emotion): 기쁨, 슬픔, 분노, 불안, 평온, 혐오, 놀람
-- 느낌(feeling): 몸에서 느껴지는 감각 (가슴이 답답함, 어깨가 무거움 등)
-대화 스타일:
-- 반말로 다정하게 대화해
-- 공감을 먼저 하고, 사용자가 스스로 탐색하도록 질문해
-- 간결하게 2-3문장으로 응답해
-- 절대 진단하거나 조언을 강요하지 마
-- Inside Out 이론처럼 여러 감정이 함께 존재할 수 있다는 것을 인정해`;
+      const systemPrompt = `You are "Maumie," the user's emotional companion and inner-self mirror.
+
+You help distinguish between EMOTIONS and FEELINGS:
+- Emotions: psychological states — Joy, Sadness, Anger, Anxiety, Calm, Disgust, Surprise
+- Feelings: physical body sensations — tight chest, heavy shoulders, stomach ache, etc.
+
+Like the movie Inside Out, you understand that multiple emotions coexist at the same time, and that's perfectly normal. There's no "right" emotion to feel.
+
+Conversation style:
+- Warm, friendly, and casual — like a caring best friend
+- Empathize first, then gently ask questions so the user explores on their own
+- Keep responses to 2-3 sentences max
+- Never diagnose, lecture, or force advice
+- Sometimes gently point out the connection between emotions and body feelings
+- Celebrate small wins and emotional awareness`;
 
       const chatMessages = [
         { role: "system" as const, content: systemPrompt },
@@ -171,6 +176,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (e) {
       console.error(e);
       res.status(500).json({ error: "Failed to get dashboard" });
+    }
+  });
+
+  // Shop routes
+  app.get("/api/shop", async (req, res) => {
+    try {
+      await storage.seedShopAndWellness();
+      const items = await storage.getShopItems();
+      res.json(items);
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: "Failed to get shop items" });
+    }
+  });
+
+  app.get("/api/shop/owned", async (req, res) => {
+    try {
+      const user = await ensureDefaultUser();
+      const items = await storage.getUserItems(user.id);
+      res.json(items);
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: "Failed to get owned items" });
+    }
+  });
+
+  app.post("/api/shop/purchase", async (req, res) => {
+    try {
+      const user = await ensureDefaultUser();
+      const { itemId } = req.body;
+      const result = await storage.purchaseItem(user.id, itemId);
+      res.json(result);
+    } catch (e: any) {
+      console.error(e);
+      res.status(400).json({ error: e.message || "Purchase failed" });
+    }
+  });
+
+  app.post("/api/shop/equip", async (req, res) => {
+    try {
+      const user = await ensureDefaultUser();
+      const { itemId, category } = req.body;
+      await storage.equipItem(user.id, itemId, category);
+      res.json({ success: true });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: "Failed to equip item" });
+    }
+  });
+
+  // Wellness recommendations
+  app.get("/api/wellness", async (req, res) => {
+    try {
+      await storage.seedShopAndWellness();
+      const emotion = req.query.emotion as string | undefined;
+      const recs = await storage.getWellnessRecommendations(emotion);
+      res.json(recs);
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: "Failed to get recommendations" });
     }
   });
 

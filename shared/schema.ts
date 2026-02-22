@@ -43,6 +43,7 @@ export const characters = pgTable("characters", {
   feelingGrowth: integer("feeling_growth").notNull().default(0),
   stressManagement: integer("stress_management").notNull().default(0),
   spiritualGrowth: integer("spiritual_growth").notNull().default(0),
+  soulCoins: integer("soul_coins").notNull().default(0),
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
   updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
@@ -151,6 +152,53 @@ export const breathingSessions = pgTable("breathing_sessions", {
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
+export const shopItems = pgTable("shop_items", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  price: integer("price").notNull(),
+  imageEmoji: text("image_emoji").notNull().default("✨"),
+  rarity: text("rarity").notNull().default("common"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const userItems = pgTable("user_items", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  itemId: integer("item_id")
+    .notNull()
+    .references(() => shopItems.id),
+  equipped: boolean("equipped").notNull().default(false),
+  purchasedAt: timestamp("purchased_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const coinTransactions = pgTable("coin_transactions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  amount: integer("amount").notNull(),
+  type: text("type").notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const wellnessRecommendations = pgTable("wellness_recommendations", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  emotionTrigger: text("emotion_trigger"),
+  linkUrl: text("link_url"),
+  imageEmoji: text("image_emoji").notNull().default("🔗"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -167,3 +215,7 @@ export type Conversation = typeof conversations.$inferSelect;
 export type Message = typeof messages.$inferSelect;
 export type WeeklyReport = typeof weeklyReports.$inferSelect;
 export type BreathingSession = typeof breathingSessions.$inferSelect;
+export type ShopItem = typeof shopItems.$inferSelect;
+export type UserItem = typeof userItems.$inferSelect;
+export type CoinTransaction = typeof coinTransactions.$inferSelect;
+export type WellnessRecommendation = typeof wellnessRecommendations.$inferSelect;
