@@ -181,27 +181,6 @@ export default function GrowthScreen() {
             <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.linkBtn} onPress={() => router.push("/meditation")} activeOpacity={0.7}>
-            <View style={[styles.linkIcon, { backgroundColor: "rgba(126,217,87,0.1)" }]}>
-              <Ionicons name="musical-notes" size={20} color="#7ED957" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.linkTitle}>Meditation Music</Text>
-              <Text style={styles.linkDesc}>Calming sounds for mindfulness</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.linkBtn} onPress={() => router.push("/breathing")} activeOpacity={0.7}>
-            <View style={[styles.linkIcon, { backgroundColor: "rgba(99,102,241,0.1)" }]}>
-              <Ionicons name="leaf" size={20} color="#6366F1" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.linkTitle}>Breathing Guide</Text>
-              <Text style={styles.linkDesc}>Guided breathing exercises</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
         </ScrollView>
       </View>
     </View>

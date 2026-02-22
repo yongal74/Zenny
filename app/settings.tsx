@@ -14,8 +14,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Notifications from "expo-notifications";
-import * as Device from "expo-device";
+
+let Notifications: any = null;
+let Device: any = null;
+if (Platform.OS !== "web") {
+  try {
+    Notifications = require("expo-notifications");
+    Device = require("expo-device");
+  } catch {}
+}
 
 const FREQUENCY_OPTIONS = [
   { key: "30min", label: "Every 30 min", minutes: 30 },
@@ -36,18 +43,20 @@ const PUSH_MESSAGES = [
   "Quick check-in time! Your Maumi grows when you reflect. 🌱",
 ];
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+if (Notifications) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+}
 
 async function registerForPushNotifications() {
-  if (Platform.OS === "web") return false;
+  if (Platform.OS === "web" || !Notifications || !Device) return false;
 
   if (Device.isDevice) {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -62,6 +71,7 @@ async function registerForPushNotifications() {
 }
 
 async function scheduleNotifications(frequencyMinutes: number) {
+  if (!Notifications) return;
   await Notifications.cancelAllScheduledNotificationsAsync();
 
   const message = PUSH_MESSAGES[Math.floor(Math.random() * PUSH_MESSAGES.length)];
@@ -81,6 +91,7 @@ async function scheduleNotifications(frequencyMinutes: number) {
 }
 
 async function cancelAllNotifications() {
+  if (!Notifications) return;
   await Notifications.cancelAllScheduledNotificationsAsync();
 }
 

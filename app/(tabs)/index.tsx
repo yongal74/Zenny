@@ -879,6 +879,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
     gap: 6,
+    marginTop: 12,
   },
   mainMenuRow: {
     flexDirection: "row",

@@ -28,7 +28,13 @@ function RootLayoutNav() {
     if (!isReady) return;
     const inOnboarding = segments[0] === "onboarding";
     if (needsOnboarding && !inOnboarding) {
-      router.replace("/onboarding");
+      AsyncStorage.getItem("onboarding_completed").then((val) => {
+        if (val === "true") {
+          setNeedsOnboarding(false);
+        } else {
+          router.replace("/onboarding");
+        }
+      });
     }
   }, [isReady, needsOnboarding, segments]);
 
