@@ -1,12 +1,49 @@
-// template
-const tintColorLight = "#2f95dc";
-
-export default {
+const Colors = {
   light: {
-    text: "#000",
-    background: "#fff",
-    tint: tintColorLight,
-    tabIconDefault: "#ccc",
-    tabIconSelected: tintColorLight,
+    text: "#4A4A4A",
+    textSecondary: "#8E8E8E",
+    background: "#FFF9F0",
+    surface: "#FFFFFF",
+    tint: "#B28DFF",
+    tabIconDefault: "#C4B5D0",
+    tabIconSelected: "#B28DFF",
+    primary: "#E8DAEF",
+    secondary: "#D5F5E3",
+    accent: "#FFB5A7",
+    border: "#F0E6F6",
+    card: "#FFFFFF",
+    shadow: "rgba(178, 141, 255, 0.08)",
+  },
+  dark: {
+    text: "#F0E6F6",
+    textSecondary: "#A89BB5",
+    background: "#1A1425",
+    surface: "#2A2035",
+    tint: "#C9A6FF",
+    tabIconDefault: "#6B5A7D",
+    tabIconSelected: "#C9A6FF",
+    primary: "#3D2E5A",
+    secondary: "#1E3A2A",
+    accent: "#FF8A7A",
+    border: "#3D2E5A",
+    card: "#2A2035",
+    shadow: "rgba(0, 0, 0, 0.3)",
+  },
+  emotions: {
+    joy: "#FFD93D",
+    sadness: "#6B9FE8",
+    anger: "#FF6B6B",
+    anxiety: "#B28DFF",
+    calm: "#98D8AA",
+    disgust: "#A8D672",
+    surprise: "#FFB347",
+  },
+  gradients: {
+    healing: ["#E8DAEF", "#D5F5E3", "#FFF9F0"],
+    calm: ["#D5F5E3", "#E8DAEF"],
+    energy: ["#FFD93D", "#FFB347"],
+    stress: ["#FF6B6B", "#B28DFF"],
   },
 };
+
+export default Colors;
