@@ -108,8 +108,7 @@ function CharacterView({ character, onPress }: { character: any; onPress: () => 
   const stage = character?.evolutionStage || 1;
   const level = character?.level || 1;
   const charName = character?.name || "Maumie";
-  const imgKey = stage < 2 ? "egg" : species;
-  const charImage = CHARACTER_IMAGES[imgKey] || CHARACTER_IMAGES.cloud;
+  const charImage = CHARACTER_IMAGES[species] || CHARACTER_IMAGES.cloud;
 
   const growthScale = Math.min(1 + (level - 1) * LEVEL_SCALE_STEP, MAX_SCALE);
   const imgSize = BASE_CHAR_SIZE * growthScale;
@@ -453,8 +452,7 @@ export default function HomeScreen() {
   }, [inputText, isLoading, convoState, conversationId, saveLog, addMsg, queryClient]);
 
   const charSpecies = character?.species || "cloud";
-  const charImgKey = (character?.evolutionStage || 1) < 2 ? "egg" : charSpecies;
-  const avatarImg = CHARACTER_IMAGES[charImgKey] || CHARACTER_IMAGES.cloud;
+  const avatarImg = CHARACTER_IMAGES[charSpecies] || CHARACTER_IMAGES.cloud;
 
   const renderMessage = ({ item }: { item: ChatMsg }) => {
     const isUser = item.role === "user";
