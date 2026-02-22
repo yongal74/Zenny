@@ -108,6 +108,7 @@ The app is **English-first**, targeting the North American market with a premium
 - **Meditation** (`app/meditation.tsx`) — Meditation music player with nature/music/ambient/focus categories
 - **Breathing** (`app/breathing.tsx`) — Guided breathing exercises (4-7-8, Box, Energizing, Deep Calm, Sleep)
 - **Onboarding** (`app/onboarding.tsx`) — 6-slide intro: welcome, emotions/feelings, growth, meditation, deep growth, customization
+- **Settings** (`app/settings.tsx`) — Push notifications (enable/disable, frequency), shake detection toggle, soul coin rewards info
 
 ### Activity Log
 - 6 activities in 2 rows of 3: Breathing, Meditation, Gratitude, Drink Water, Stretch, Etc.
@@ -120,6 +121,7 @@ The app is **English-first**, targeting the North American market with a premium
 
 ## Recent Changes (Feb 22, 2026)
 
+- **App Name**: Changed to "Maumi: AI Mental Care Tamagotchi"
 - **Character Evolution**: 35 evolution stage images (7 per species x 5 species) with 8-bit pixel art kawaii style
 - **Time-based Greetings**: Maumie greets based on time of day (morning/afternoon/evening/night) with random variety
 - **Home Menu Expanded**: Added Meditation and Breathing buttons to main chat menu (5 buttons total)
@@ -132,3 +134,7 @@ The app is **English-first**, targeting the North American market with a premium
 - Meditation music: 12 tracks across 4 categories
 - Breathing guide: 5 guided exercises (4-7-8, Box, Energizing, Deep Calm, Sleep)
 - Generated 6 base + 35 evolution kawaii character illustrations
+- **Settings Screen**: Push notifications (enable/disable, frequency: 30min/1hr/2hr/4hr/8hr), shake detection toggle
+- **Shake to Activate**: Shaking phone resets chat to main menu for quick check-in (uses expo-sensors Accelerometer)
+- **Soul Coin Rewards**: Emotion log +5 coins, Feeling log +5 coins, Push check-in bonus +10 coins
+- **Home Menu Layout**: Row 1 = My Emotions / My Feelings / Just Chat, Row 2 = Meditation (full width), Row 3 = Breathing (full width)
