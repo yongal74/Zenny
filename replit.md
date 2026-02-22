@@ -110,21 +110,25 @@ The app is **English-first**, targeting the North American market with a premium
 - **Onboarding** (`app/onboarding.tsx`) — 6-slide intro: welcome, emotions/feelings, growth, meditation, deep growth, customization
 
 ### Activity Log
-- 6 activities in 2 rows of 3: 1-Min Breath, Meditation, Gratitude, Drink Water, Stretch, Etc.
+- 6 activities in 2 rows of 3: Breathing, Meditation, Gratitude, Drink Water, Stretch, Etc.
+
+### Character Evolution System
+- 7 evolution stages per species (35 total images in `assets/characters/{species}_{stage}.png`)
+- Evolution based on level: Stage 1 (Lv1-4), Stage 2 (Lv5-9), Stage 3 (Lv10-14), Stage 4 (Lv15-19), Stage 5 (Lv20-24), Stage 6 (Lv25-29), Stage 7 (Lv30+)
+- Character visually evolves from baby to divine form
+- `getCharacterImage(species, level)` function in index.tsx determines correct image
 
 ## Recent Changes (Feb 22, 2026)
 
-- Activity log: Removed Look Far Away, Neck & Shoulder, Favorite Song, Open a Window; added Etc.; arranged 6 items in 2 rows of 3
-- Shop expanded to 80 items across 8 categories (hats, glasses, sunglasses, clothes, bags, badges, wings, pets)
-- Added onboarding flow (6 screens explaining app concept, emotions/feelings, growth, meditation, customization)
-- Added meditation music screen with 12 tracks across 4 categories
-- Added breathing guide screen with 5 guided exercises (4-7-8, Box, Energizing, Deep Calm, Sleep)
-- Growth tab now links to Meditation Music and Breathing Guide
-- Redesigned Home screen: large character at top, scrollable chat at bottom
-- Character image size increased (120px base, grows with level)
-- XP progress bar added below character
-- Chat avatar uses character image instead of emoji
-- Species picker uses 48x48 character images
-- Character default name changed to "Maumie" (English)
-- Shop & Wellness screens updated to lavender/purple theme
-- Generated 6 kawaii character illustrations (cloud, star, drop, flame, leaf, egg)
+- **Character Evolution**: 35 evolution stage images (7 per species x 5 species) with 8-bit pixel art kawaii style
+- **Time-based Greetings**: Maumie greets based on time of day (morning/afternoon/evening/night) with random variety
+- **Home Menu Expanded**: Added Meditation and Breathing buttons to main chat menu (5 buttons total)
+- **Back Buttons**: All screens now use chevron-back icon for consistent navigation
+- **Activity Rename**: "1-Min Breath" renamed to "Breathing" in both Home and Journal
+- **Soul Coin Purchase**: Coin purchase modal with 4 packages ($0.99-$14.99) and `/api/coins/add` endpoint
+- **Onboarding Redesigned**: 6-slide onboarding with bullet points, colored dots, icon circles, better typography
+- Activity log: 6 items in 2 rows of 3 (Breathing, Meditation, Gratitude, Drink Water, Stretch, Etc.)
+- Shop: 80 items across 8 categories with gradient header
+- Meditation music: 12 tracks across 4 categories
+- Breathing guide: 5 guided exercises (4-7-8, Box, Energizing, Deep Calm, Sleep)
+- Generated 6 base + 35 evolution kawaii character illustrations
