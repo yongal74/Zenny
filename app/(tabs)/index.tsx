@@ -12,7 +12,6 @@ import {
   KeyboardAvoidingView,
   ActivityIndicator,
   Image,
-  Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -68,6 +67,7 @@ type ChatMsg = {
   role: "assistant" | "user";
   content: string;
   buttons?: { label: string; emoji?: string; action: string; data?: any }[];
+  isMainMenu?: boolean;
 };
 
 type ConvoState =
@@ -81,7 +81,7 @@ type ConvoState =
   | "reward"
   | "free_chat";
 
-const BASE_CHAR_SIZE = 120;
+const BASE_CHAR_SIZE = 140;
 const LEVEL_SCALE_STEP = 0.04;
 const MAX_SCALE = 2.0;
 
@@ -113,7 +113,6 @@ function CharacterView({ character, onPress }: { character: any; onPress: () => 
 
   const growthScale = Math.min(1 + (level - 1) * LEVEL_SCALE_STEP, MAX_SCALE);
   const imgSize = BASE_CHAR_SIZE * growthScale;
-  const glowSize = imgSize + 40;
 
   const xpForNext = 100;
   const currentXpInLevel = (character?.totalExp || 0) % 100;
@@ -121,7 +120,7 @@ function CharacterView({ character, onPress }: { character: any; onPress: () => 
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={styles.characterContainer}>
-      <Animated.View style={[styles.characterGlow, { width: glowSize, height: glowSize, borderRadius: glowSize / 2, transform: [{ scale: pulseAnim }] }]}>
+      <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
         <Animated.View style={{ transform: [{ translateY: floatAnim }] }}>
           <Image source={charImage} style={{ width: imgSize, height: imgSize }} resizeMode="contain" />
         </Animated.View>
@@ -178,10 +177,11 @@ export default function HomeScreen() {
         role: "assistant",
         content: "Hey there! How are you doing today? 💜",
         buttons: [
-          { label: "Check in my emotions", emoji: "🫧", action: "start_emotion" },
-          { label: "Check in my feelings", emoji: "🌊", action: "start_feeling" },
-          { label: "Just chat", emoji: "💬", action: "free_chat" },
+          { label: "My Emotions", emoji: "🫧", action: "start_emotion" },
+          { label: "My Feelings", emoji: "🌊", action: "start_feeling" },
+          { label: "Just Chat", emoji: "💬", action: "free_chat" },
         ],
+        isMainMenu: true,
       });
       setConvoState("choose_type");
     }
@@ -327,12 +327,13 @@ export default function HomeScreen() {
         setTimeout(() => {
           addMsg({
             role: "assistant",
-            content: "Sure! What would you like to check in on?",
+            content: "Sure! What would you like to do?",
             buttons: [
-              { label: "Check in my emotions", emoji: "🫧", action: "start_emotion" },
-              { label: "Check in my feelings", emoji: "🌊", action: "start_feeling" },
-              { label: "Just chat", emoji: "💬", action: "free_chat" },
+              { label: "My Emotions", emoji: "🫧", action: "start_emotion" },
+              { label: "My Feelings", emoji: "🌊", action: "start_feeling" },
+              { label: "Just Chat", emoji: "💬", action: "free_chat" },
             ],
+            isMainMenu: true,
           });
           setConvoState("choose_type");
         }, 400);
@@ -470,11 +471,14 @@ export default function HomeScreen() {
           </View>
         </View>
         {item.buttons && item.buttons.length > 0 && (
-          <View style={styles.buttonsWrap}>
+          <View style={[styles.buttonsWrap, item.isMainMenu && styles.mainMenuWrap]}>
             {item.buttons.map((btn, i) => (
               <TouchableOpacity
                 key={i}
-                style={styles.actionBtn}
+                style={[
+                  styles.actionBtn,
+                  item.isMainMenu && styles.mainMenuBtn,
+                ]}
                 onPress={() => {
                   if (btn.action === "show_all_activities") {
                     handleShowAllActivities();
@@ -485,7 +489,10 @@ export default function HomeScreen() {
                 activeOpacity={0.7}
               >
                 {btn.emoji && <Text style={styles.actionEmoji}>{btn.emoji}</Text>}
-                <Text style={styles.actionLabel}>{btn.label}</Text>
+                <Text style={[
+                  styles.actionLabel,
+                  item.isMainMenu && styles.mainMenuLabel,
+                ]}>{btn.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -498,68 +505,66 @@ export default function HomeScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={90}
     >
       <LinearGradient
-        colors={["#E8DEFF", "#EDE5FF", "#F5F1FF"]}
-        style={[styles.topArea, { paddingTop: topInset + 8 }]}
+        colors={["#DDD5F3", "#E5DEFA", "#EDE8FF"]}
+        style={[styles.topArea, { paddingTop: topInset + 4 }]}
       >
         <CharacterView character={character} onPress={() => setShowCharacterPicker(true)} />
       </LinearGradient>
 
-      <View style={styles.divider}>
-        <View style={styles.dividerHandle} />
-      </View>
+      <View style={styles.chatSection}>
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={(item) => item.id}
+          style={styles.chatArea}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 8, paddingTop: 12 }}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+        />
 
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        style={styles.chatArea}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8, paddingTop: 12 }}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="interactive"
-      />
-
-      <View style={[styles.inputBar, { paddingBottom: bottomInset }]}>
-        {showTextInput ? (
-          <>
-            {convoState === "write_note" && (
-              <TouchableOpacity style={styles.skipBtn} onPress={() => saveLog("")}>
-                <Text style={styles.skipText}>Skip</Text>
-              </TouchableOpacity>
-            )}
-            <TextInput
-              style={styles.textInput}
-              placeholder={convoState === "write_note" ? "Write a short note..." : "Type a message..."}
-              placeholderTextColor={colors.textSecondary}
-              value={inputText}
-              onChangeText={setInputText}
-              onSubmitEditing={sendFreeMessage}
-              multiline
-              maxLength={500}
-            />
-            <TouchableOpacity
-              style={[styles.sendBtn, { backgroundColor: inputText.trim() ? colors.tint : colors.border }]}
-              onPress={sendFreeMessage}
-              disabled={!inputText.trim() || isLoading}
-            >
-              {isLoading ? (
-                <ActivityIndicator size="small" color="#FFF" />
-              ) : (
-                <Ionicons name="arrow-up" size={18} color="#FFF" />
+        <View style={[styles.inputBar, { paddingBottom: bottomInset }]}>
+          {showTextInput ? (
+            <>
+              {convoState === "write_note" && (
+                <TouchableOpacity style={styles.skipBtn} onPress={() => saveLog("")}>
+                  <Text style={styles.skipText}>Skip</Text>
+                </TouchableOpacity>
               )}
-            </TouchableOpacity>
-          </>
-        ) : (
-          <View style={styles.inputPlaceholder}>
-            <Text style={[styles.inputHint, { color: colors.textSecondary }]}>Tap a button above to get started</Text>
-          </View>
-        )}
+              <TextInput
+                style={styles.textInput}
+                placeholder={convoState === "write_note" ? "Write a short note..." : "Type a message..."}
+                placeholderTextColor="#A9A3C0"
+                value={inputText}
+                onChangeText={setInputText}
+                onSubmitEditing={sendFreeMessage}
+                multiline
+                maxLength={500}
+              />
+              <TouchableOpacity
+                style={[styles.sendBtn, { backgroundColor: inputText.trim() ? "#7C6DC5" : "#D8D2EA" }]}
+                onPress={sendFreeMessage}
+                disabled={!inputText.trim() || isLoading}
+              >
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <Ionicons name="arrow-up" size={18} color="#FFF" />
+                )}
+              </TouchableOpacity>
+            </>
+          ) : (
+            <View style={styles.inputPlaceholder}>
+              <Text style={styles.inputHint}>Tap a button above to get started</Text>
+            </View>
+          )}
+        </View>
       </View>
 
       {showCharacterPicker && (
@@ -608,18 +613,13 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   topArea: {
     alignItems: "center",
-    paddingBottom: 4,
+    paddingBottom: 8,
   },
   characterContainer: { alignItems: "center", paddingVertical: 4 },
-  characterGlow: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(124,109,197,0.06)",
-  },
   characterName: { fontSize: 18, fontWeight: "800", color: "#2D2B3D", marginTop: 6, letterSpacing: -0.3 },
   levelRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 6 },
   levelPill: {
-    backgroundColor: "rgba(124,109,197,0.12)",
+    backgroundColor: "rgba(124,109,197,0.15)",
     paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 10,
@@ -638,31 +638,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#7C6DC5",
   },
   xpLabel: { fontSize: 10, fontWeight: "600", color: "#9B97B0" },
-  divider: {
-    alignItems: "center",
-    paddingVertical: 6,
-    backgroundColor: "#F5F1FF",
+  chatSection: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    marginTop: -12,
+    overflow: "hidden",
   },
-  dividerHandle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "rgba(124,109,197,0.2)",
-  },
-  chatArea: { flex: 1, backgroundColor: "#F5F1FF" },
+  chatArea: { flex: 1 },
   bubble: { maxWidth: "82%", padding: 14, borderRadius: 20, flexDirection: "row", gap: 8, alignItems: "flex-start" },
   userBubble: {
     alignSelf: "flex-end", backgroundColor: "#7C6DC5",
     borderBottomRightRadius: 6, marginLeft: "18%",
   },
   assistantBubble: {
-    alignSelf: "flex-start", backgroundColor: "#FFFFFF",
+    alignSelf: "flex-start", backgroundColor: "#F3F0FA",
     borderBottomLeftRadius: 6, marginRight: "18%",
-    shadowColor: "#7C6DC5",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 1,
   },
   botAvatar: { width: 24, height: 24, marginTop: 2 },
   bubbleText: { fontSize: 15, lineHeight: 22 },
@@ -670,29 +662,42 @@ const styles = StyleSheet.create({
   assistantText: { color: "#2D2B3D" },
   buttonsWrap: {
     flexDirection: "row", flexWrap: "wrap", gap: 8,
-    paddingLeft: 40, paddingTop: 8, paddingRight: 16,
+    paddingLeft: 48, paddingTop: 8, paddingRight: 20,
+  },
+  mainMenuWrap: {
+    paddingLeft: 48,
+    paddingRight: 20,
+    gap: 0,
+    justifyContent: "flex-start",
   },
   actionBtn: {
     flexDirection: "row", alignItems: "center", gap: 6,
     backgroundColor: "#FFFFFF", paddingHorizontal: 14, paddingVertical: 10,
     borderRadius: 20, borderWidth: 1.5, borderColor: "#EDE8F5",
-    shadowColor: "#7C6DC5",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
   },
-  actionEmoji: { fontSize: 16 },
+  mainMenuBtn: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "#EDE5FF",
+    borderColor: "#D5CCF0",
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 12,
+    borderRadius: 14,
+    marginHorizontal: 3,
+  },
+  actionEmoji: { fontSize: 14 },
   actionLabel: { fontSize: 13, fontWeight: "600", color: "#7C6DC5" },
+  mainMenuLabel: { fontSize: 12, fontWeight: "700", color: "#5B4FA0" },
   inputBar: {
     flexDirection: "row", alignItems: "flex-end", gap: 8,
-    paddingHorizontal: 12, paddingTop: 10,
+    paddingHorizontal: 16, paddingTop: 10,
     backgroundColor: "#FFFFFF",
-    borderTopWidth: 1, borderTopColor: "#EDE8F5",
+    borderTopWidth: 1, borderTopColor: "#F0ECF8",
   },
   textInput: {
     flex: 1, minHeight: 40, maxHeight: 100, borderRadius: 22,
-    backgroundColor: "#F8F5FF", paddingHorizontal: 16, paddingVertical: 10,
+    backgroundColor: "#F5F1FF", paddingHorizontal: 16, paddingVertical: 10,
     fontSize: 15, color: "#2D2B3D",
   },
   sendBtn: {
@@ -704,7 +709,7 @@ const styles = StyleSheet.create({
   },
   skipText: { color: "#9B97B0", fontSize: 14, fontWeight: "600" },
   inputPlaceholder: { flex: 1, alignItems: "center", paddingVertical: 14 },
-  inputHint: { fontSize: 14 },
+  inputHint: { fontSize: 14, color: "#A9A3C0" },
   pickerOverlay: {
     position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: "rgba(0,0,0,0.4)", zIndex: 100,
