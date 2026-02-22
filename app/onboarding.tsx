@@ -16,7 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const SLIDES = [
   {
     title: "Welcome to\nMaumi",
-    subtitle: "Your Personal Wellness Companion",
+    subtitle: "AI Mental Care Tamagotchi",
     bullets: [
       "In the AI era, your emotions and inner world are your most valuable assets.",
       "Maumi helps you understand and manage them — one check-in at a time.",

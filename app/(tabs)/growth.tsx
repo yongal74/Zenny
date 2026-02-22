@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -6,14 +6,22 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { getApiUrl } from "@/lib/api";
 import { LinearGradient } from "expo-linear-gradient";
+
+const COIN_PACKAGES = [
+  { coins: 100, label: "100 Coins", price: "$0.99" },
+  { coins: 500, label: "500 Coins", price: "$3.99" },
+  { coins: 1200, label: "1,200 Coins", price: "$7.99" },
+  { coins: 3000, label: "3,000 Coins", price: "$14.99" },
+];
 
 const CHAKRA_LEVELS = [
   { level: 1, name: "Root", color: Colors.chakra.root, meaning: "Stability & Foundation", range: "Lv 1–5" },
@@ -39,6 +47,8 @@ export default function GrowthScreen() {
   const colors = Colors.light;
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const [showCoinModal, setShowCoinModal] = useState(false);
   const topInset = Platform.OS === "web" ? 67 : insets.top;
   const bottomInset = Platform.OS === "web" ? 34 : Math.max(insets.bottom, 8);
 
@@ -152,10 +162,14 @@ export default function GrowthScreen() {
           <View style={styles.coinCard}>
             <View style={styles.coinHeader}>
               <Text style={{ fontSize: 28 }}>🪙</Text>
-              <View>
+              <View style={{ flex: 1 }}>
                 <Text style={styles.coinValue}>{character?.soulCoins || 0}</Text>
                 <Text style={styles.coinLabel}>Soul Coins</Text>
               </View>
+              <TouchableOpacity style={styles.getCoinBtn} onPress={() => setShowCoinModal(true)} activeOpacity={0.7}>
+                <Ionicons name="add-circle" size={16} color="#FFFFFF" />
+                <Text style={styles.getCoinBtnText}>Get Coins</Text>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -183,6 +197,61 @@ export default function GrowthScreen() {
 
         </ScrollView>
       </View>
+
+      {showCoinModal && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Get Soul Coins</Text>
+              <TouchableOpacity onPress={() => setShowCoinModal(false)}>
+                <Ionicons name="close-circle" size={28} color="#9B97B0" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalDesc}>Soul Coins let you customize your Maumi with accessories, pets, and more!</Text>
+            <View style={styles.currentCoins}>
+              <Ionicons name="diamond" size={20} color="#FFD700" />
+              <Text style={styles.currentCoinsText}>{character?.soulCoins || 0} coins</Text>
+            </View>
+            {COIN_PACKAGES.map((pkg, i) => (
+              <TouchableOpacity key={i} style={styles.coinPkg} onPress={() => {
+                Alert.alert(
+                  "Get Soul Coins",
+                  `Purchase ${pkg.label} for ${pkg.price}?`,
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Buy",
+                      onPress: async () => {
+                        try {
+                          await fetch(getApiUrl("/api/coins/add"), {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ amount: pkg.coins, source: "purchase" }),
+                          });
+                          queryClient.invalidateQueries({ queryKey: ["character"] });
+                          setShowCoinModal(false);
+                          Alert.alert("Success!", `${pkg.coins} Soul Coins added!`);
+                        } catch {
+                          Alert.alert("Error", "Purchase failed. Try again.");
+                        }
+                      },
+                    },
+                  ]
+                );
+              }} activeOpacity={0.7}>
+                <View style={styles.coinPkgLeft}>
+                  <Ionicons name="diamond" size={24} color="#FFD700" />
+                  <Text style={styles.coinPkgLabel}>{pkg.label}</Text>
+                </View>
+                <View style={styles.coinPkgPrice}>
+                  <Text style={styles.coinPkgPriceText}>{pkg.price}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+            <Text style={styles.modalFooter}>You can also earn coins by logging emotions, feelings, and completing activities!</Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -225,4 +294,19 @@ const styles = StyleSheet.create({
   linkIcon: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   linkTitle: { fontSize: 15, fontWeight: "700", color: "#2D2B3D" },
   linkDesc: { fontSize: 12, color: "#9B97B0", marginTop: 1 },
+  getCoinBtn: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "#5B7AE8", paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14 },
+  getCoinBtnText: { fontSize: 13, fontWeight: "700", color: "#FFFFFF" },
+  modalOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 100, justifyContent: "center", alignItems: "center" },
+  modalCard: { backgroundColor: "#FFFFFF", borderRadius: 24, padding: 24, width: "88%", shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 24, elevation: 8 },
+  modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
+  modalTitle: { fontSize: 22, fontWeight: "800", color: "#2D2B3D" },
+  modalDesc: { fontSize: 13, color: "#9B97B0", lineHeight: 19, marginBottom: 16 },
+  currentCoins: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#F8F5FF", borderRadius: 14, paddingHorizontal: 16, paddingVertical: 10, marginBottom: 16, justifyContent: "center" },
+  currentCoinsText: { fontSize: 18, fontWeight: "700", color: "#2D2B3D" },
+  coinPkg: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#F8F5FF", borderRadius: 14, padding: 14, marginBottom: 8 },
+  coinPkgLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
+  coinPkgLabel: { fontSize: 16, fontWeight: "700", color: "#2D2B3D" },
+  coinPkgPrice: { backgroundColor: "#5B7AE8", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 6 },
+  coinPkgPriceText: { fontSize: 14, fontWeight: "700", color: "#FFFFFF" },
+  modalFooter: { fontSize: 12, color: "#B0ABC0", textAlign: "center", marginTop: 12, lineHeight: 17 },
 });
