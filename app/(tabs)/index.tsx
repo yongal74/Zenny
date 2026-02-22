@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   ActivityIndicator,
   Image,
+  Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -80,6 +81,10 @@ type ConvoState =
   | "reward"
   | "free_chat";
 
+const BASE_CHAR_SIZE = 120;
+const LEVEL_SCALE_STEP = 0.04;
+const MAX_SCALE = 2.0;
+
 function CharacterView({ character, onPress }: { character: any; onPress: () => void }) {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
@@ -87,14 +92,14 @@ function CharacterView({ character, onPress }: { character: any; onPress: () => 
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 1.05, duration: 2500, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(pulseAnim, { toValue: 1, duration: 2500, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1.04, duration: 2800, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 2800, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
       ])
     ).start();
     Animated.loop(
       Animated.sequence([
-        Animated.timing(floatAnim, { toValue: -8, duration: 3000, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(floatAnim, { toValue: 0, duration: 3000, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(floatAnim, { toValue: -10, duration: 3200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(floatAnim, { toValue: 0, duration: 3200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
       ])
     ).start();
   }, []);
@@ -106,18 +111,30 @@ function CharacterView({ character, onPress }: { character: any; onPress: () => 
   const imgKey = stage < 2 ? "egg" : species;
   const charImage = CHARACTER_IMAGES[imgKey] || CHARACTER_IMAGES.cloud;
 
+  const growthScale = Math.min(1 + (level - 1) * LEVEL_SCALE_STEP, MAX_SCALE);
+  const imgSize = BASE_CHAR_SIZE * growthScale;
+  const glowSize = imgSize + 40;
+
+  const xpForNext = 100;
+  const currentXpInLevel = (character?.totalExp || 0) % 100;
+  const xpProgress = currentXpInLevel / xpForNext;
+
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.characterContainer}>
-      <Animated.View style={[styles.characterGlow, { transform: [{ scale: pulseAnim }] }]}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={styles.characterContainer}>
+      <Animated.View style={[styles.characterGlow, { width: glowSize, height: glowSize, borderRadius: glowSize / 2, transform: [{ scale: pulseAnim }] }]}>
         <Animated.View style={{ transform: [{ translateY: floatAnim }] }}>
-          <View style={styles.characterCircle}>
-            <Image source={charImage} style={styles.characterImg} resizeMode="contain" />
-          </View>
+          <Image source={charImage} style={{ width: imgSize, height: imgSize }} resizeMode="contain" />
         </Animated.View>
       </Animated.View>
       <Text style={styles.characterName}>{charName}</Text>
-      <View style={styles.levelPill}>
-        <Text style={styles.levelText}>Lv.{level}</Text>
+      <View style={styles.levelRow}>
+        <View style={styles.levelPill}>
+          <Text style={styles.levelText}>Lv.{level}</Text>
+        </View>
+        <View style={styles.xpBarOuter}>
+          <View style={[styles.xpBarInner, { width: `${Math.max(xpProgress * 100, 4)}%` }]} />
+        </View>
+        <Text style={styles.xpLabel}>{currentXpInLevel}/{xpForNext}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -196,7 +213,7 @@ export default function HomeScreen() {
         }, 400);
         break;
 
-      case "select_emotion":
+      case "select_emotion": {
         const emo = EMOTIONS.find((e) => e.key === data);
         setSelectedEmotion(data);
         addMsg({ role: "user", content: `${emo?.emoji} ${emo?.label}` });
@@ -208,8 +225,9 @@ export default function HomeScreen() {
           setConvoState("write_note");
         }, 400);
         break;
+      }
 
-      case "select_feeling":
+      case "select_feeling": {
         const feel = FEELINGS.find((f) => f.key === data);
         setSelectedFeeling(data);
         addMsg({ role: "user", content: `${feel?.emoji} ${feel?.label}` });
@@ -221,6 +239,7 @@ export default function HomeScreen() {
           setConvoState("write_note");
         }, 400);
         break;
+      }
 
       case "skip_note":
         await saveLog("");
@@ -432,12 +451,18 @@ export default function HomeScreen() {
     }
   }, [inputText, isLoading, convoState, conversationId, saveLog, addMsg, queryClient]);
 
+  const charSpecies = character?.species || "cloud";
+  const charImgKey = (character?.evolutionStage || 1) < 2 ? "egg" : charSpecies;
+  const avatarImg = CHARACTER_IMAGES[charImgKey] || CHARACTER_IMAGES.cloud;
+
   const renderMessage = ({ item }: { item: ChatMsg }) => {
     const isUser = item.role === "user";
     return (
       <View style={{ marginVertical: 4 }}>
         <View style={[styles.bubble, isUser ? styles.userBubble : styles.assistantBubble]}>
-          {!isUser && <Text style={styles.botAvatar}>☁️</Text>}
+          {!isUser && (
+            <Image source={avatarImg} style={styles.botAvatar} resizeMode="contain" />
+          )}
           <View style={{ flex: 1 }}>
             <Text style={[styles.bubbleText, isUser ? styles.userText : styles.assistantText]}>
               {item.content || (isLoading ? "..." : "")}
@@ -477,48 +502,16 @@ export default function HomeScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={90}
     >
-      <LinearGradient colors={["#E8DEFF", "#F0EAFB", "#F5F1FF"]} style={[styles.topArea, { paddingTop: topInset }]}>
+      <LinearGradient
+        colors={["#E8DEFF", "#EDE5FF", "#F5F1FF"]}
+        style={[styles.topArea, { paddingTop: topInset + 8 }]}
+      >
         <CharacterView character={character} onPress={() => setShowCharacterPicker(true)} />
       </LinearGradient>
 
-      {showCharacterPicker && (
-        <View style={styles.pickerOverlay}>
-          <View style={styles.pickerCard}>
-            <Text style={styles.pickerTitle}>Choose Your Maumie</Text>
-            <View style={styles.speciesRow}>
-              {[
-                { key: "cloud", label: "Cloud" },
-                { key: "star", label: "Star" },
-                { key: "drop", label: "Drop" },
-                { key: "flame", label: "Flame" },
-                { key: "leaf", label: "Leaf" },
-              ].map((s) => (
-                <TouchableOpacity
-                  key={s.key}
-                  style={[styles.speciesBtn, character?.species === s.key && styles.speciesSelected]}
-                  onPress={async () => {
-                    try {
-                      await fetch(getApiUrl("/api/character/species"), {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ species: s.key }),
-                      });
-                      queryClient.invalidateQueries({ queryKey: ["character"] });
-                      setShowCharacterPicker(false);
-                    } catch {}
-                  }}
-                >
-                  <Image source={CHARACTER_IMAGES[s.key]} style={{ width: 40, height: 40 }} resizeMode="contain" />
-                  <Text style={styles.speciesLabel}>{s.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <TouchableOpacity style={styles.pickerClose} onPress={() => setShowCharacterPicker(false)}>
-              <Text style={styles.pickerCloseText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
+      <View style={styles.divider}>
+        <View style={styles.dividerHandle} />
+      </View>
 
       <FlatList
         ref={flatListRef}
@@ -526,7 +519,7 @@ export default function HomeScreen() {
         renderItem={renderMessage}
         keyExtractor={(item) => item.id}
         style={styles.chatArea}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8, paddingTop: 8 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8, paddingTop: 12 }}
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
@@ -568,38 +561,96 @@ export default function HomeScreen() {
           </View>
         )}
       </View>
+
+      {showCharacterPicker && (
+        <View style={styles.pickerOverlay}>
+          <View style={styles.pickerCard}>
+            <Text style={styles.pickerTitle}>Choose Your Maumie</Text>
+            <View style={styles.speciesRow}>
+              {[
+                { key: "cloud", label: "Cloud" },
+                { key: "star", label: "Star" },
+                { key: "drop", label: "Drop" },
+                { key: "flame", label: "Flame" },
+                { key: "leaf", label: "Leaf" },
+              ].map((s) => (
+                <TouchableOpacity
+                  key={s.key}
+                  style={[styles.speciesBtn, character?.species === s.key && styles.speciesSelected]}
+                  onPress={async () => {
+                    try {
+                      await fetch(getApiUrl("/api/character/species"), {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ species: s.key }),
+                      });
+                      queryClient.invalidateQueries({ queryKey: ["character"] });
+                      setShowCharacterPicker(false);
+                    } catch {}
+                  }}
+                >
+                  <Image source={CHARACTER_IMAGES[s.key]} style={{ width: 48, height: 48 }} resizeMode="contain" />
+                  <Text style={styles.speciesLabel}>{s.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TouchableOpacity style={styles.pickerClose} onPress={() => setShowCharacterPicker(false)}>
+              <Text style={styles.pickerCloseText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  topArea: { alignItems: "center", paddingBottom: 12 },
-  characterContainer: { alignItems: "center", paddingVertical: 8 },
+  topArea: {
+    alignItems: "center",
+    paddingBottom: 4,
+  },
+  characterContainer: { alignItems: "center", paddingVertical: 4 },
   characterGlow: {
-    width: 100, height: 100, borderRadius: 50,
-    alignItems: "center", justifyContent: "center",
-    backgroundColor: "rgba(124,109,197,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(124,109,197,0.06)",
   },
-  characterCircle: {
-    width: 80, height: 80, borderRadius: 40,
-    backgroundColor: "rgba(255,255,255,0.8)",
-    alignItems: "center", justifyContent: "center",
-    shadowColor: "#7C6DC5",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  characterImg: { width: 60, height: 60 },
-  characterName: { fontSize: 16, fontWeight: "700", color: "#2D2B3D", marginTop: 4 },
+  characterName: { fontSize: 18, fontWeight: "800", color: "#2D2B3D", marginTop: 6, letterSpacing: -0.3 },
+  levelRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 6 },
   levelPill: {
-    backgroundColor: "rgba(124,109,197,0.12)", paddingHorizontal: 12, paddingVertical: 3,
-    borderRadius: 12, marginTop: 4,
+    backgroundColor: "rgba(124,109,197,0.12)",
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 10,
   },
-  levelText: { fontSize: 12, fontWeight: "600", color: "#7C6DC5" },
+  levelText: { fontSize: 12, fontWeight: "700", color: "#7C6DC5" },
+  xpBarOuter: {
+    width: 80,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "rgba(124,109,197,0.12)",
+    overflow: "hidden",
+  },
+  xpBarInner: {
+    height: "100%",
+    borderRadius: 3,
+    backgroundColor: "#7C6DC5",
+  },
+  xpLabel: { fontSize: 10, fontWeight: "600", color: "#9B97B0" },
+  divider: {
+    alignItems: "center",
+    paddingVertical: 6,
+    backgroundColor: "#F5F1FF",
+  },
+  dividerHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(124,109,197,0.2)",
+  },
   chatArea: { flex: 1, backgroundColor: "#F5F1FF" },
-  bubble: { maxWidth: "82%", padding: 14, borderRadius: 20, flexDirection: "row", gap: 8 },
+  bubble: { maxWidth: "82%", padding: 14, borderRadius: 20, flexDirection: "row", gap: 8, alignItems: "flex-start" },
   userBubble: {
     alignSelf: "flex-end", backgroundColor: "#7C6DC5",
     borderBottomRightRadius: 6, marginLeft: "18%",
@@ -613,7 +664,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 1,
   },
-  botAvatar: { fontSize: 18, marginTop: 2 },
+  botAvatar: { width: 24, height: 24, marginTop: 2 },
   bubbleText: { fontSize: 15, lineHeight: 22 },
   userText: { color: "#FFFFFF" },
   assistantText: { color: "#2D2B3D" },
