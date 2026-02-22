@@ -81,7 +81,7 @@ type ConvoState =
   | "reward"
   | "free_chat";
 
-const BASE_CHAR_SIZE = 140;
+const BASE_CHAR_SIZE = 170;
 const LEVEL_SCALE_STEP = 0.04;
 const MAX_SCALE = 2.0;
 
@@ -176,9 +176,9 @@ export default function HomeScreen() {
         role: "assistant",
         content: "Hey there! How are you doing today? 💜",
         buttons: [
-          { label: "My Emotions", emoji: "🫧", action: "start_emotion" },
-          { label: "My Feelings", emoji: "🌊", action: "start_feeling" },
-          { label: "Just Chat", emoji: "💬", action: "free_chat" },
+          { label: "My Emotions", action: "start_emotion" },
+          { label: "My Feelings", action: "start_feeling" },
+          { label: "Just Chat", action: "free_chat" },
         ],
         isMainMenu: true,
       });
@@ -328,9 +328,9 @@ export default function HomeScreen() {
             role: "assistant",
             content: "Sure! What would you like to do?",
             buttons: [
-              { label: "My Emotions", emoji: "🫧", action: "start_emotion" },
-              { label: "My Feelings", emoji: "🌊", action: "start_feeling" },
-              { label: "Just Chat", emoji: "💬", action: "free_chat" },
+              { label: "My Emotions", action: "start_emotion" },
+              { label: "My Feelings", action: "start_feeling" },
+              { label: "Just Chat", action: "free_chat" },
             ],
             isMainMenu: true,
           });
@@ -611,7 +611,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   topArea: {
     alignItems: "center",
-    paddingBottom: 8,
+    paddingBottom: 28,
   },
   characterContainer: { alignItems: "center", paddingVertical: 4 },
   characterName: { fontSize: 18, fontWeight: "800", color: "#FFFFFF", marginTop: 6, letterSpacing: -0.3 },
@@ -676,17 +676,17 @@ const styles = StyleSheet.create({
   mainMenuBtn: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#EDE5FF",
-    borderColor: "#D5CCF0",
-    borderWidth: 1,
+    backgroundColor: "#5B7AE8",
+    borderColor: "#5B7AE8",
+    borderWidth: 0,
     paddingHorizontal: 8,
     paddingVertical: 12,
-    borderRadius: 14,
+    borderRadius: 20,
     marginHorizontal: 3,
   },
   actionEmoji: { fontSize: 14 },
   actionLabel: { fontSize: 13, fontWeight: "600", color: "#7C6DC5" },
-  mainMenuLabel: { fontSize: 12, fontWeight: "700", color: "#5B4FA0" },
+  mainMenuLabel: { fontSize: 12, fontWeight: "700", color: "#FFFFFF" },
   inputBar: {
     flexDirection: "row", alignItems: "flex-end", gap: 8,
     paddingHorizontal: 16, paddingTop: 10,
