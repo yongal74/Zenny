@@ -138,3 +138,17 @@ The app is **English-first**, targeting the North American market with a premium
 - **Shake to Activate**: Shaking phone resets chat to main menu for quick check-in (uses expo-sensors Accelerometer)
 - **Soul Coin Rewards**: Emotion log +5 coins, Feeling log +5 coins, Push check-in bonus +10 coins
 - **Home Menu Layout**: Row 1 = My Emotions / My Feelings / Just Chat, Row 2 = Meditation (full width), Row 3 = Breathing (full width)
+- **App Name**: Changed to "Maumi: AI Mental Care Tamagotchi" — all references updated from "Maumie" to "Maumi"
+- **Onboarding Subtitle**: First slide subtitle changed to "AI Mental Care Tamagotchi"
+- **Growth Coin Recharge**: "Get Coins" button added to Soul Coins card in Growth tab with coin purchase modal
+- **Growth Tab Cleanup**: Removed Meditation Music and Breathing Guide links (accessible from Home menu)
+- **Home Spacing**: Added clear spacing between greeting bubble and menu buttons
+- **Onboarding Fix**: Fixed onboarding completion loop (AsyncStorage check in _layout.tsx)
+- **Web Compatibility**: expo-notifications conditionally loaded (Platform.OS !== "web") to fix web bundle errors
+
+### Planned Next Steps (Tomorrow)
+- Payment integration (real purchases for Soul Coins)
+- Accessory images for shop items (replace emoji with actual images)
+- Character skin/accessory rendering on character
+- Back tap option as alternative to shake detection
+- More customization items and categories
