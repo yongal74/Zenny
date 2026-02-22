@@ -508,7 +508,7 @@ export default function HomeScreen() {
       keyboardVerticalOffset={90}
     >
       <LinearGradient
-        colors={["#DDD5F3", "#E5DEFA", "#EDE8FF"]}
+        colors={["#5B7AE8", "#7B6BC5", "#9B7FD4"]}
         style={[styles.topArea, { paddingTop: topInset + 4 }]}
       >
         <CharacterView character={character} onPress={() => setShowCharacterPicker(true)} />
@@ -614,34 +614,34 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   characterContainer: { alignItems: "center", paddingVertical: 4 },
-  characterName: { fontSize: 18, fontWeight: "800", color: "#2D2B3D", marginTop: 6, letterSpacing: -0.3 },
+  characterName: { fontSize: 18, fontWeight: "800", color: "#FFFFFF", marginTop: 6, letterSpacing: -0.3 },
   levelRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 6 },
   levelPill: {
-    backgroundColor: "rgba(124,109,197,0.15)",
+    backgroundColor: "rgba(255,255,255,0.2)",
     paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 10,
   },
-  levelText: { fontSize: 12, fontWeight: "700", color: "#7C6DC5" },
+  levelText: { fontSize: 12, fontWeight: "700", color: "#FFFFFF" },
   xpBarOuter: {
     width: 80,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "rgba(124,109,197,0.12)",
+    backgroundColor: "rgba(255,255,255,0.2)",
     overflow: "hidden",
   },
   xpBarInner: {
     height: "100%",
     borderRadius: 3,
-    backgroundColor: "#7C6DC5",
+    backgroundColor: "#FFFFFF",
   },
-  xpLabel: { fontSize: 10, fontWeight: "600", color: "#9B97B0" },
+  xpLabel: { fontSize: 10, fontWeight: "600", color: "rgba(255,255,255,0.7)" },
   chatSection: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    marginTop: -12,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    marginTop: -16,
     overflow: "hidden",
   },
   chatArea: { flex: 1 },
