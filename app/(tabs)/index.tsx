@@ -21,6 +21,7 @@ import Colors from "@/constants/colors";
 import { getApiUrl } from "@/lib/api";
 import { LinearGradient } from "expo-linear-gradient";
 import { useShakeDetection } from "@/hooks/useShakeDetection";
+import { AdBanner } from "@/components/AdBanner";
 import * as Haptics from "expo-haptics";
 
 const CHARACTER_IMAGES: Record<string, any> = {
@@ -696,9 +697,10 @@ export default function HomeScreen() {
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
+          ListFooterComponent={<AdBanner variant="medium" />}
         />
 
-        <View style={[styles.inputBar, { paddingBottom: bottomInset }]}>
+        <View style={[styles.inputBar, { paddingBottom: Math.max(bottomInset, 8) }]}>
           {showTextInput ? (
             <>
               {convoState === "write_note" && (
@@ -914,7 +916,7 @@ const styles = StyleSheet.create({
   mainMenuLabel: { fontSize: 12, fontWeight: "700", color: "#FFFFFF" },
   inputBar: {
     flexDirection: "row", alignItems: "flex-end", gap: 8,
-    paddingHorizontal: 16, paddingTop: 10,
+    paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8,
     backgroundColor: "#FFFFFF",
     borderTopWidth: 1, borderTopColor: "#F0ECF8",
   },

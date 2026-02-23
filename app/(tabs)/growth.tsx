@@ -15,6 +15,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { getApiUrl } from "@/lib/api";
 import { LinearGradient } from "expo-linear-gradient";
+import { AdBanner } from "@/components/AdBanner";
 
 const COIN_PACKAGES = [
   { coins: 100, label: "100 Coins", price: "$0.99" },
@@ -195,6 +196,7 @@ export default function GrowthScreen() {
             <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
 
+          <AdBanner variant="medium" />
         </ScrollView>
       </View>
 

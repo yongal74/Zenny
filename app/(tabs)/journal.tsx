@@ -15,6 +15,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { getApiUrl } from "@/lib/api";
 import { LinearGradient } from "expo-linear-gradient";
+import { AdBanner } from "@/components/AdBanner";
 
 const ACTIVITIES = [
   { key: "breath", label: "Breathing", exp: 30 },
@@ -195,6 +196,8 @@ export default function JournalScreen() {
             </View>
           </View>
 
+          <AdBanner variant="medium" />
+
           {emotionLogs.length > 0 && (
             <View style={{ marginTop: 24 }}>
               <Text style={styles.sectionTitle}>Recent Logs</Text>
@@ -234,6 +237,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     marginTop: -20,
+    overflow: "hidden",
   },
   journalBox: {
     backgroundColor: "#F8F5FF",
