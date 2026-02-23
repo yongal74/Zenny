@@ -709,6 +709,7 @@ export default function HomeScreen() {
       </LinearGradient>
 
       <View style={styles.chatSection}>
+        <AdBanner />
         <FlatList
           ref={flatListRef}
           data={messages}
@@ -719,7 +720,6 @@ export default function HomeScreen() {
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
-          ListFooterComponent={<AdBanner variant="medium" />}
         />
 
         <View style={[styles.inputBar, { paddingBottom: Math.max(bottomInset, 8) }]}>
