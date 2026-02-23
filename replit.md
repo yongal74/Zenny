@@ -146,9 +146,16 @@ The app is **English-first**, targeting the North American market with a premium
 - **Onboarding Fix**: Fixed onboarding completion loop (AsyncStorage check in _layout.tsx)
 - **Web Compatibility**: expo-notifications conditionally loaded (Platform.OS !== "web") to fix web bundle errors
 
-### Planned Next Steps (Tomorrow)
-- Payment integration (real purchases for Soul Coins)
+### Recent Changes (Feb 23, 2026)
+- **Chat Input Fix**: Fixed input bar positioning so typed text is visible during chat
+- **Journal Gradient Fix**: Added overflow: hidden to journal contentWrap preventing square edges overlapping gradient header
+- **Ad Banners**: Added AdBanner component (`components/AdBanner.tsx`) to Home, Journal, and Growth screens
+- **Double Tap Character**: New quick action — double tap character to reset chat to main menu (alternative to shake detection)
+- **Settings Updated**: Added "Double Tap Character" toggle section with AsyncStorage persistence
+
+### Planned Next Steps
+- Payment integration via RevenueCat (real purchases for Soul Coins)
 - Accessory images for shop items (replace emoji with actual images)
 - Character skin/accessory rendering on character
-- Back tap option as alternative to shake detection
+- Ad network integration (replace placeholder ad banners with real ads)
 - More customization items and categories
