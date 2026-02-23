@@ -246,6 +246,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const flatListRef = useRef<FlatList>(null);
   const topInset = Platform.OS === "web" ? 67 : insets.top;
+  const tabBarHeight = Platform.OS === "web" ? 84 : 56;
   const bottomInset = Platform.OS === "web" ? 34 : Math.max(insets.bottom, 8);
 
   const [messages, setMessages] = useState<ChatMsg[]>([]);
@@ -709,7 +710,6 @@ export default function HomeScreen() {
       </LinearGradient>
 
       <View style={styles.chatSection}>
-        <AdBanner />
         <FlatList
           ref={flatListRef}
           data={messages}
@@ -722,7 +722,7 @@ export default function HomeScreen() {
           keyboardDismissMode="interactive"
         />
 
-        <View style={[styles.inputBar, { paddingBottom: Math.max(bottomInset, 8) }]}>
+        <View style={[styles.inputBar, { paddingBottom: tabBarHeight + 4 }]}>
           {showTextInput ? (
             <>
               {convoState === "write_note" && (
