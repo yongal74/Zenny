@@ -24,6 +24,7 @@ import { useShakeDetection } from "@/hooks/useShakeDetection";
 import { AdBanner } from "@/components/AdBanner";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { fetch as expoFetch } from "expo/fetch";
 
 const CHARACTER_IMAGES: Record<string, any> = {
   cloud: require("@/assets/characters/cloud.png"),
@@ -576,7 +577,7 @@ export default function HomeScreen() {
         setConversationId(convId);
       }
 
-      const res = await fetch(getApiUrl(`/api/conversations/${convId}/messages`), {
+      const res = await expoFetch(getApiUrl(`/api/conversations/${convId}/messages`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: text }),
