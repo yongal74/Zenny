@@ -236,6 +236,17 @@ Conversation style:
     }
   });
 
+  app.get("/api/shop/equipped", async (req, res) => {
+    try {
+      const user = await ensureDefaultUser();
+      const items = await storage.getEquippedItems(user.id);
+      res.json(items.map(i => ({ ...i.si, equipped: true })));
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: "Failed to get equipped items" });
+    }
+  });
+
   app.post("/api/coins/add", async (req, res) => {
     try {
       const user = await ensureDefaultUser();

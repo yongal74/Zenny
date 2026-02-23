@@ -7,6 +7,7 @@ import {
   ScrollView,
   Platform,
   Alert,
+  Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -15,6 +16,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { getApiUrl } from "@/lib/api";
 import { LinearGradient } from "expo-linear-gradient";
+import { ACCESSORY_IMAGES } from "@/constants/accessories";
 
 type Category = "all" | "hat" | "glasses" | "sunglasses" | "clothes" | "bag" | "badge" | "wings" | "pet";
 
@@ -105,6 +107,22 @@ export default function ShopScreen() {
     },
   });
 
+  const equip = useMutation({
+    mutationFn: async ({ itemId, category }: { itemId: number; category: string }) => {
+      const res = await fetch(getApiUrl("/api/shop/equip"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId, category }),
+      });
+      if (!res.ok) throw new Error("Equip failed");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ownedItems"] });
+      queryClient.invalidateQueries({ queryKey: ["equippedItems"] });
+    },
+  });
+
   const handleBuyCoinPackage = (pkg: typeof COIN_PACKAGES[0]) => {
     Alert.alert(
       "Get Soul Coins",
@@ -132,7 +150,8 @@ export default function ShopScreen() {
     );
   };
 
-  const ownedIds = new Set(ownedItems.map((i: any) => i.itemId));
+  const ownedMap = new Map<number, any>();
+  ownedItems.forEach((i: any) => ownedMap.set(i.itemId, i));
   const filtered = activeCategory === "all" ? shopItems : shopItems.filter((i: any) => i.category === activeCategory);
 
   return (
@@ -168,22 +187,33 @@ export default function ShopScreen() {
 
         <ScrollView contentContainerStyle={styles.itemGrid} showsVerticalScrollIndicator={false}>
           {filtered.map((item: any) => {
-            const owned = ownedIds.has(item.id);
+            const ownedItem = ownedMap.get(item.id);
+            const owned = !!ownedItem;
+            const isEquipped = ownedItem?.equipped === true;
             const rarityColor = RARITY_COLORS[item.rarity] || RARITY_COLORS.common;
+            const accessoryImg = item.imageAsset ? ACCESSORY_IMAGES[item.imageAsset] : null;
             return (
-              <View key={item.id} style={[styles.itemCard, owned && { borderColor: "#5B7AE8" + "40" }]}>
+              <View key={item.id} style={[styles.itemCard, owned && { borderColor: "#5B7AE8" + "40" }, isEquipped && { borderColor: "#5B7AE8", backgroundColor: "#F8F5FF" }]}>
                 <View style={[styles.rarityDot, { backgroundColor: rarityColor }]} />
-                <Text style={styles.itemEmoji}>{item.imageEmoji}</Text>
+                {accessoryImg ? (
+                  <Image source={accessoryImg} style={styles.itemImage} resizeMode="contain" />
+                ) : (
+                  <Text style={styles.itemEmoji}>{item.imageEmoji}</Text>
+                )}
                 <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
                 <Text style={styles.itemDesc} numberOfLines={2}>{item.description}</Text>
                 <View style={[styles.rarityLabel, { backgroundColor: rarityColor + "15" }]}>
                   <Text style={[styles.rarityText, { color: rarityColor }]}>{item.rarity}</Text>
                 </View>
                 {owned ? (
-                  <View style={styles.ownedBadge}>
-                    <Ionicons name="checkmark-circle" size={14} color="#5B7AE8" />
-                    <Text style={{ color: "#5B7AE8", fontSize: 12, fontWeight: "600" }}>Owned</Text>
-                  </View>
+                  <TouchableOpacity
+                    style={[styles.equipBtn, isEquipped && styles.equippedBtn]}
+                    onPress={() => equip.mutate({ itemId: item.id, category: item.category })}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name={isEquipped ? "checkmark-circle" : "shirt-outline"} size={14} color={isEquipped ? "#FFFFFF" : "#5B7AE8"} />
+                    <Text style={[styles.equipBtnText, isEquipped && { color: "#FFFFFF" }]}>{isEquipped ? "Equipped" : "Equip"}</Text>
+                  </TouchableOpacity>
                 ) : (
                   <TouchableOpacity
                     style={styles.buyBtn}
@@ -261,8 +291,9 @@ const styles = StyleSheet.create({
   categoryActive: { backgroundColor: "#5B7AE8" },
   categoryChipText: { fontSize: 13, fontWeight: "600", color: "#9B97B0" },
   itemGrid: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 16, gap: 12, paddingTop: 8 },
-  itemCard: { width: "47%", borderRadius: 16, backgroundColor: "#FFFFFF", padding: 14, alignItems: "center", gap: 6, flexGrow: 1, maxWidth: "48%", shadowColor: "#7C6DC5", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 1, borderWidth: 1, borderColor: "#EDE8F5" },
+  itemCard: { width: "47%", borderRadius: 16, backgroundColor: "#FFFFFF", padding: 14, alignItems: "center", gap: 6, flexGrow: 1, maxWidth: "48%", shadowColor: "#7C6DC5", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 1, borderWidth: 1.5, borderColor: "#EDE8F5" },
   rarityDot: { position: "absolute", top: 10, right: 10, width: 8, height: 8, borderRadius: 4 },
+  itemImage: { width: 48, height: 48 },
   itemEmoji: { fontSize: 36 },
   itemName: { fontSize: 14, fontWeight: "700", color: "#2D2B3D", textAlign: "center" },
   itemDesc: { fontSize: 11, textAlign: "center", lineHeight: 16, color: "#9B97B0" },
@@ -270,7 +301,9 @@ const styles = StyleSheet.create({
   rarityText: { fontSize: 10, fontWeight: "600", textTransform: "capitalize" },
   buyBtn: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "#5B7AE8", paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12, marginTop: 4 },
   buyBtnText: { color: "#FFFFFF", fontSize: 14, fontWeight: "700" },
-  ownedBadge: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "rgba(91,122,232,0.1)", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginTop: 4 },
+  equipBtn: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "rgba(91,122,232,0.1)", paddingHorizontal: 14, paddingVertical: 7, borderRadius: 12, marginTop: 4 },
+  equippedBtn: { backgroundColor: "#5B7AE8" },
+  equipBtnText: { color: "#5B7AE8", fontSize: 12, fontWeight: "700" },
   modalOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 100, justifyContent: "center", alignItems: "center" },
   modalCard: { backgroundColor: "#FFFFFF", borderRadius: 24, padding: 24, width: "88%", shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 24, elevation: 8 },
   modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },

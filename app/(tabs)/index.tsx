@@ -22,6 +22,7 @@ import { getApiUrl } from "@/lib/api";
 import { LinearGradient } from "expo-linear-gradient";
 import { useShakeDetection } from "@/hooks/useShakeDetection";
 import { AdBanner } from "@/components/AdBanner";
+import { ACCESSORY_IMAGES, ACCESSORY_POSITIONS } from "@/constants/accessories";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -154,7 +155,7 @@ const BASE_CHAR_SIZE = 170;
 const LEVEL_SCALE_STEP = 0.04;
 const MAX_SCALE = 2.0;
 
-function CharacterView({ character, onPress, onDoubleTap, showTooltip }: { character: any; onPress: () => void; onDoubleTap?: () => void; showTooltip?: boolean }) {
+function CharacterView({ character, onPress, onDoubleTap, showTooltip, equippedItems }: { character: any; onPress: () => void; onDoubleTap?: () => void; showTooltip?: boolean; equippedItems?: any[] }) {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
   const tooltipOpacity = useRef(new Animated.Value(0)).current;
@@ -222,7 +223,30 @@ function CharacterView({ character, onPress, onDoubleTap, showTooltip }: { chara
       )}
       <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
         <Animated.View style={{ transform: [{ translateY: floatAnim }] }}>
-          <Image source={charImage} style={{ width: imgSize, height: imgSize }} resizeMode="contain" />
+          <View style={{ width: imgSize, height: imgSize, position: "relative" }}>
+            {equippedItems?.filter(e => e.category === "wings").map((acc: any) => {
+              const img = acc.imageAsset ? ACCESSORY_IMAGES[acc.imageAsset] : null;
+              if (!img) return null;
+              const pos = ACCESSORY_POSITIONS.wings;
+              const s = pos.size * growthScale;
+              return <Image key={acc.id} source={img} style={{ position: "absolute", width: s, height: s, top: pos.top * growthScale, left: (imgSize - s) / 2 + pos.left * growthScale, zIndex: 0 }} resizeMode="contain" />;
+            })}
+            <Image source={charImage} style={{ width: imgSize, height: imgSize, zIndex: 1 }} resizeMode="contain" />
+            {equippedItems?.filter(e => e.category !== "wings" && e.category !== "pet").map((acc: any) => {
+              const img = acc.imageAsset ? ACCESSORY_IMAGES[acc.imageAsset] : null;
+              if (!img) return null;
+              const pos = ACCESSORY_POSITIONS[acc.category] || { top: 0, left: 0, size: 40 };
+              const s = pos.size * growthScale;
+              return <Image key={acc.id} source={img} style={{ position: "absolute", width: s, height: s, top: pos.top * growthScale, left: (imgSize - s) / 2 + pos.left * growthScale, zIndex: 2 }} resizeMode="contain" />;
+            })}
+            {equippedItems?.filter(e => e.category === "pet").map((acc: any) => {
+              const img = acc.imageAsset ? ACCESSORY_IMAGES[acc.imageAsset] : null;
+              if (!img) return null;
+              const pos = ACCESSORY_POSITIONS.pet;
+              const s = pos.size * growthScale;
+              return <Image key={acc.id} source={img} style={{ position: "absolute", width: s, height: s, top: pos.top * growthScale, left: (imgSize - s) / 2 + pos.left * growthScale, zIndex: 3 }} resizeMode="contain" />;
+            })}
+          </View>
         </Animated.View>
       </Animated.View>
       <Text style={styles.characterName}>{charName}</Text>
@@ -281,6 +305,15 @@ export default function HomeScreen() {
     queryFn: async () => {
       const res = await fetch(getApiUrl("/api/character"));
       if (!res.ok) return null;
+      return res.json();
+    },
+  });
+
+  const { data: equippedItems = [] } = useQuery({
+    queryKey: ["equippedItems"],
+    queryFn: async () => {
+      const res = await fetch(getApiUrl("/api/shop/equipped"));
+      if (!res.ok) return [];
       return res.json();
     },
   });
@@ -684,7 +717,7 @@ export default function HomeScreen() {
         >
           <Ionicons name="settings-outline" size={22} color="rgba(255,255,255,0.8)" />
         </TouchableOpacity>
-        <CharacterView character={character} onPress={() => { setShowCharacterPicker(true); setShowTooltip(false); }} onDoubleTap={doubleTapEnabled ? handleShake : undefined} showTooltip={showTooltip} />
+        <CharacterView character={character} onPress={() => { setShowCharacterPicker(true); setShowTooltip(false); }} onDoubleTap={doubleTapEnabled ? handleShake : undefined} showTooltip={showTooltip} equippedItems={equippedItems} />
       </LinearGradient>
 
       <View style={styles.chatSection}>

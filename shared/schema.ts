@@ -159,6 +159,7 @@ export const shopItems = pgTable("shop_items", {
   category: text("category").notNull(),
   price: integer("price").notNull(),
   imageEmoji: text("image_emoji").notNull().default("✨"),
+  imageAsset: text("image_asset"),
   rarity: text("rarity").notNull().default("common"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
