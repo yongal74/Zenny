@@ -23,6 +23,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useShakeDetection } from "@/hooks/useShakeDetection";
 import { AdBanner } from "@/components/AdBanner";
 import * as Haptics from "expo-haptics";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CHARACTER_IMAGES: Record<string, any> = {
   cloud: require("@/assets/characters/cloud.png"),
@@ -153,10 +154,11 @@ const BASE_CHAR_SIZE = 170;
 const LEVEL_SCALE_STEP = 0.04;
 const MAX_SCALE = 2.0;
 
-function CharacterView({ character, onPress, showTooltip }: { character: any; onPress: () => void; showTooltip?: boolean }) {
+function CharacterView({ character, onPress, onDoubleTap, showTooltip }: { character: any; onPress: () => void; onDoubleTap?: () => void; showTooltip?: boolean }) {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
   const tooltipOpacity = useRef(new Animated.Value(0)).current;
+  const lastTapRef = useRef(0);
 
   useEffect(() => {
     Animated.loop(
@@ -198,7 +200,20 @@ function CharacterView({ character, onPress, showTooltip }: { character: any; on
   const xpProgress = currentXpInLevel / xpForNext;
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={styles.characterContainer}>
+    <TouchableOpacity onPress={() => {
+      const now = Date.now();
+      if (now - lastTapRef.current < 350 && onDoubleTap) {
+        onDoubleTap();
+        lastTapRef.current = 0;
+      } else {
+        lastTapRef.current = now;
+        setTimeout(() => {
+          if (lastTapRef.current === now) {
+            onPress();
+          }
+        }, 350);
+      }
+    }} activeOpacity={0.85} style={styles.characterContainer}>
       {showTooltip && (
         <Animated.View style={[styles.tooltip, { opacity: tooltipOpacity }]}>
           <Text style={styles.tooltipText}>Tap me to customize!</Text>
@@ -242,6 +257,13 @@ export default function HomeScreen() {
   const [conversationId, setConversationId] = useState<number | null>(null);
   const [showCharacterPicker, setShowCharacterPicker] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
+  const [doubleTapEnabled, setDoubleTapEnabled] = useState(true);
+
+  useEffect(() => {
+    AsyncStorage.getItem("double_tap_enabled").then((val) => {
+      if (val !== null) setDoubleTapEnabled(val !== "false");
+    });
+  }, []);
 
   const handleShake = useCallback(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -683,7 +705,7 @@ export default function HomeScreen() {
         >
           <Ionicons name="settings-outline" size={22} color="rgba(255,255,255,0.8)" />
         </TouchableOpacity>
-        <CharacterView character={character} onPress={() => { setShowCharacterPicker(true); setShowTooltip(false); }} showTooltip={showTooltip} />
+        <CharacterView character={character} onPress={() => { setShowCharacterPicker(true); setShowTooltip(false); }} onDoubleTap={doubleTapEnabled ? handleShake : undefined} showTooltip={showTooltip} />
       </LinearGradient>
 
       <View style={styles.chatSection}>

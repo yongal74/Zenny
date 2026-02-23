@@ -103,6 +103,7 @@ export default function SettingsScreen() {
 
   const [pushEnabled, setPushEnabled] = useState(false);
   const [shakeEnabled, setShakeEnabled] = useState(true);
+  const [doubleTapEnabled, setDoubleTapEnabled] = useState(true);
   const [selectedFrequency, setSelectedFrequency] = useState("2hr");
 
   useEffect(() => {
@@ -112,9 +113,11 @@ export default function SettingsScreen() {
   const loadSettings = async () => {
     const push = await AsyncStorage.getItem("push_enabled");
     const shake = await AsyncStorage.getItem("shake_enabled");
+    const doubleTap = await AsyncStorage.getItem("double_tap_enabled");
     const freq = await AsyncStorage.getItem("push_frequency");
     if (push !== null) setPushEnabled(push === "true");
     if (shake !== null) setShakeEnabled(shake !== "false");
+    if (doubleTap !== null) setDoubleTapEnabled(doubleTap !== "false");
     if (freq) setSelectedFrequency(freq);
   };
 
@@ -140,6 +143,11 @@ export default function SettingsScreen() {
   const toggleShake = async (value: boolean) => {
     setShakeEnabled(value);
     await AsyncStorage.setItem("shake_enabled", value.toString());
+  };
+
+  const toggleDoubleTap = async (value: boolean) => {
+    setDoubleTapEnabled(value);
+    await AsyncStorage.setItem("double_tap_enabled", value.toString());
   };
 
   const changeFrequency = async (key: string) => {
@@ -230,6 +238,26 @@ export default function SettingsScreen() {
               onValueChange={toggleShake}
               trackColor={{ false: "#DDD", true: "#B8A9E8" }}
               thumbColor={shakeEnabled ? "#7C6DC5" : "#CCC"}
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Double Tap Character</Text>
+          <Text style={styles.sectionDesc}>
+            Double tap your Maumi character on the Home screen to quickly open the check-in menu.
+          </Text>
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Ionicons name="hand-left" size={22} color="#7C6DC5" />
+              <Text style={styles.settingLabel}>Double Tap to Check In</Text>
+            </View>
+            <Switch
+              value={doubleTapEnabled}
+              onValueChange={toggleDoubleTap}
+              trackColor={{ false: "#DDD", true: "#B8A9E8" }}
+              thumbColor={doubleTapEnabled ? "#7C6DC5" : "#CCC"}
             />
           </View>
         </View>
