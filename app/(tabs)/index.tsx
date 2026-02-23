@@ -24,7 +24,6 @@ import { useShakeDetection } from "@/hooks/useShakeDetection";
 import { AdBanner } from "@/components/AdBanner";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { fetch as expoFetch } from "expo/fetch";
 
 const CHARACTER_IMAGES: Record<string, any> = {
   cloud: require("@/assets/characters/cloud.png"),
@@ -577,38 +576,16 @@ export default function HomeScreen() {
         setConversationId(convId);
       }
 
-      const res = await expoFetch(getApiUrl(`/api/conversations/${convId}/messages`), {
+      const res = await fetch(getApiUrl(`/api/conversations/${convId}/messages`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: text }),
       });
 
-      const assistantId = Date.now().toString() + "ai";
-      let fullContent = "";
-      setMessages((prev) => [...prev, { id: assistantId, role: "assistant", content: "" }]);
+      if (!res.ok) throw new Error("Request failed");
+      const data = await res.json();
 
-      const reader = res.body?.getReader();
-      const decoder = new TextDecoder();
-      if (reader) {
-        let done = false;
-        while (!done) {
-          const { value, done: readerDone } = await reader.read();
-          done = readerDone;
-          if (value) {
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split("\n").filter((l) => l.startsWith("data: "));
-            for (const line of lines) {
-              try {
-                const parsed = JSON.parse(line.slice(6));
-                if (parsed.content) {
-                  fullContent += parsed.content;
-                  setMessages((prev) => prev.map((m) => m.id === assistantId ? { ...m, content: fullContent } : m));
-                }
-              } catch {}
-            }
-          }
-        }
-      }
+      addMsg({ role: "assistant", content: data.content });
       queryClient.invalidateQueries({ queryKey: ["character"] });
     } catch {
       addMsg({ role: "assistant", content: "Sorry, connection seems unstable. Try again?" });

@@ -157,25 +157,13 @@ Conversation style:
         ...prevMessages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
       ];
 
-      res.setHeader("Content-Type", "text/event-stream");
-      res.setHeader("Cache-Control", "no-cache");
-      res.setHeader("Connection", "keep-alive");
-
-      const stream = await openai.chat.completions.create({
+      const completion = await openai.chat.completions.create({
         model: "gpt-4.1-mini",
         messages: chatMessages,
-        stream: true,
         max_tokens: 300,
       });
 
-      let fullResponse = "";
-      for await (const chunk of stream) {
-        const content2 = chunk.choices[0]?.delta?.content || "";
-        if (content2) {
-          fullResponse += content2;
-          res.write(`data: ${JSON.stringify({ content: content2 })}\n\n`);
-        }
-      }
+      const fullResponse = completion.choices[0]?.message?.content || "I'm here for you. How are you feeling?";
 
       await storage.createMessage(convId, "assistant", fullResponse);
 
@@ -183,15 +171,10 @@ Conversation style:
       const char = await ensureCharacter(user.id);
       await storage.addExp(char.id, 10, "spiritual");
 
-      res.write("data: [DONE]\n\n");
-      res.end();
+      res.json({ content: fullResponse });
     } catch (e) {
-      console.error(e);
-      if (!res.headersSent) {
-        res.status(500).json({ error: "Failed to send message" });
-      } else {
-        res.end();
-      }
+      console.error("Chat error:", e);
+      res.status(500).json({ error: "Failed to send message" });
     }
   });
 
