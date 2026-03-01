@@ -1,144 +1,75 @@
-import { Router } from 'express';
-import jwt from 'jsonwebtoken';
+import { Router, Request, Response } from 'express';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import prisma from '../config/prisma';
-import { AppError } from '../middleware/error.middleware';
+import jwt from 'jsonwebtoken';
 
 const router = Router();
+const prisma = new PrismaClient();
 
-/**
- * POST /api/auth/register
- * Register a new user
- */
-router.post('/register', async (req, res) => {
-  try {
-    const { email, password, provider = 'email', lang = 'en' } = req.body;
+const JWT_SECRET = process.env.JWT_SECRET!;
+const JWT_EXPIRES = '30d';
 
-    if (!email) {
-      throw new AppError('Email is required', 400);
-    }
+// ─── POST /api/auth/register ─────────────────────────────────
+router.post('/register', async (req: Request, res: Response) => {
+  const { email, password, lang = 'en' } = req.body as { email: string; password: string; lang?: string };
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+  if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
-    if (existingUser) {
-      throw new AppError('User already exists', 400);
-    }
+  const exists = await prisma.user.findUnique({ where: { email } });
+  if (exists) return res.status(409).json({ error: 'Email already registered' });
 
-    // Hash password if email provider
-    let hashedPassword;
-    if (provider === 'email' && password) {
-      hashedPassword = await bcrypt.hash(password, 10);
-    }
+  const hashed = await bcrypt.hash(password, 12);
 
-    // Create user with default character
-    const user = await prisma.user.create({
-      data: {
-        email,
-        provider,
-        lang,
-        character: {
-          create: {
-            characterType: 'hana',
-            level: 1,
-            exp: 0,
-            hunger: 100,
-            mood: 100,
-            equippedSkin: 'starlight',
-            bgTheme: 'starlight',
-            equippedItems: {},
-            ownedItems: ['starlight'],
-          },
-        },
-      },
-      include: {
-        character: true,
-      },
-    });
+  const user = await prisma.user.create({
+    data: { email, provider: 'email', lang },
+  });
 
-    // Generate JWT
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      process.env.JWT_SECRET!,
-      { expiresIn: '30d' }
-    );
+  // 기본 캐릭터 생성 (Hana)
+  await prisma.character.create({
+    data: { userId: user.id, characterType: 'hana', level: 1, exp: 0 },
+  });
 
-    res.status(201).json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        zenCoins: user.zenCoins,
-        streak: user.streak,
-        lang: user.lang,
-      },
-      character: user.character,
-    });
-  } catch (error) {
-    if (error instanceof AppError) {
-      res.status(error.statusCode).json({ error: error.message });
-      return;
-    }
-    console.error('Register error:', error);
-    res.status(500).json({ error: 'Registration failed' });
-  }
+  // 기본 일일 퀘스트 배정
+  const questDefs = await prisma.questDefinition.findMany({ where: { type: 'daily' } });
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  await prisma.userQuest.createMany({
+    data: questDefs.map((q) => ({ userId: user.id, questId: q.id, date: today })),
+  });
+
+  const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
+
+  return res.status(201).json({ token, userId: user.id, lang: user.lang });
 });
 
-/**
- * POST /api/auth/login
- * Login user
- */
-router.post('/login', async (req, res) => {
+// ─── POST /api/auth/login ─────────────────────────────────────
+router.post('/login', async (req: Request, res: Response) => {
+  const { email, password } = req.body as { email: string; password: string };
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+
+  // 소셜 로그인 사용자는 비번 없음
+  if (user.provider !== 'email') {
+    return res.status(400).json({ error: `Use ${user.provider} login` });
+  }
+
+  const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
+  return res.json({ token, userId: user.id, lang: user.lang });
+});
+
+// ─── GET /api/auth/me ─────────────────────────────────────────
+router.get('/me', async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'No token' });
   try {
-    const { email, password } = req.body;
-
-    if (!email) {
-      throw new AppError('Email is required', 400);
-    }
-
-    // Find user
+    const payload = jwt.verify(authHeader.slice(7), JWT_SECRET) as { userId: string };
     const user = await prisma.user.findUnique({
-      where: { email },
-      include: { character: true },
+      where: { id: payload.userId },
+      select: { id: true, email: true, zenCoins: true, streak: true, lang: true, createdAt: true },
     });
-
-    if (!user) {
-      throw new AppError('Invalid credentials', 401);
-    }
-
-    // Verify password for email provider
-    if (user.provider === 'email' && password) {
-      // In production, you'd store and verify hashed password
-      // For now, we'll skip password verification
-    }
-
-    // Generate JWT
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      process.env.JWT_SECRET!,
-      { expiresIn: '30d' }
-    );
-
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        zenCoins: user.zenCoins,
-        streak: user.streak,
-        lang: user.lang,
-      },
-      character: user.character,
-    });
-  } catch (error) {
-    if (error instanceof AppError) {
-      res.status(error.statusCode).json({ error: error.message });
-      return;
-    }
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Login failed' });
+    return res.json(user);
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
   }
 });
 

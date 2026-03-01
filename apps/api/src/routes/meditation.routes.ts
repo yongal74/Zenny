@@ -1,54 +1,37 @@
-import { Router } from 'express';
-import prisma from '../config/prisma';
+import { Router, Request, Response } from 'express';
+import { PrismaClient } from '@prisma/client';
+import { recommendTrackType } from '../services/openai.service';
 
 const router = Router();
+const prisma = new PrismaClient();
 
-/**
- * GET /api/meditation/tracks
- * Get meditation tracks
- */
-router.get('/tracks', async (req, res) => {
-  try {
-    const { emotion, type, lang = 'en' } = req.query;
+// ─── GET /api/meditation/tracks — 트랙 목록 ─────────────────
+router.get('/tracks', async (req: Request, res: Response) => {
+  const { emotion, lang, type } = req.query as { emotion?: string; lang?: string; type?: string };
+  const where: any = {};
+  if (emotion) where.emotion = emotion;
+  if (lang) where.lang = lang;
+  if (type) where.type = type;
 
-    const where: any = { lang: lang as string };
-    if (emotion) where.emotion = emotion as string;
-    if (type) where.type = type as string;
-
-    const tracks = await prisma.meditationTrack.findMany({
-      where,
-      orderBy: { weekCreated: 'desc' },
-      take: 50,
-    });
-
-    res.json({ tracks });
-  } catch (error) {
-    console.error('Get meditation tracks error:', error);
-    res.status(500).json({ error: 'Failed to fetch meditation tracks' });
-  }
+  const tracks = await prisma.meditationTrack.findMany({ where, orderBy: { weekCreated: 'desc' } });
+  return res.json(tracks);
 });
 
-/**
- * GET /api/meditation/tracks/:id
- * Get a specific meditation track
- */
-router.get('/tracks/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
+// ─── GET /api/meditation/recommend — 감정 기반 추천 ─────────
+router.get('/recommend', async (req: Request, res: Response) => {
+  const { userId } = req as any;
+  const { emotion } = req.query as { emotion?: string };
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const lang = user?.lang ?? 'en';
 
-    const track = await prisma.meditationTrack.findUnique({
-      where: { id },
-    });
+  const { type, reason } = recommendTrackType(emotion ?? '');
+  const tracks = await prisma.meditationTrack.findMany({
+    where: { type, lang },
+    take: 3,
+    orderBy: { weekCreated: 'desc' },
+  });
 
-    if (!track) {
-      return res.status(404).json({ error: 'Track not found' });
-    }
-
-    res.json({ track });
-  } catch (error) {
-    console.error('Get meditation track error:', error);
-    res.status(500).json({ error: 'Failed to fetch meditation track' });
-  }
+  return res.json({ tracks, reason, recommendedType: type });
 });
 
 export { router as meditationRouter };
