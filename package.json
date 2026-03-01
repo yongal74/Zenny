@@ -2,9 +2,6 @@
   "name": "zenny",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "apps/*"
-  ],
   "scripts": {
     "mobile": "yarn workspace zenny-mobile start",
     "api": "yarn workspace zenny-api dev",

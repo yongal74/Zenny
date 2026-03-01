@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import type { Character, Language, ItemSlot } from '../types';
+import type { Character, Lang, ItemSlot } from '../types';
+type Language = Lang;
 
 interface CharacterStore {
   character: Character | null;
