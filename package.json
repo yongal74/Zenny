@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "mobile": "yarn workspace zenny-mobile start",
-    "api": "yarn workspace zenny-api dev",
-    "api:seed": "yarn workspace zenny-api prisma:seed",
-    "api:migrate": "yarn workspace zenny-api prisma:migrate",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
-    "setup": "yarn install && yarn docker:up && yarn api:migrate && yarn api:seed"
+    "server:dev": "cd apps/api && npm install && npm run dev",
+    "server:build": "cd apps/api && npm install && npm run build",
+    "server:prod": "node apps/api/dist/server.js",
+    "expo:dev": "cd apps/mobile && npm install && npx expo start --web --port 8081",
+    "expo:static:build": "cd apps/mobile && npm install && npx expo export --platform web --output-dir ../../dist",
+    "api:seed": "cd apps/api && npm run prisma:seed",
+    "api:migrate": "cd apps/api && npm run prisma:migrate",
+    "setup": "npm install && cd apps/api && npm install && cd ../mobile && npm install"
   },
   "devDependencies": {
     "typescript": "~5.3.3"
