@@ -39,3 +39,6 @@ yarn-error.*
 .vercel
 
 .env
+
+# Large pixel art sprite sheets (use Git LFS in production)
+apps/mobile/assets/characters/*.png
