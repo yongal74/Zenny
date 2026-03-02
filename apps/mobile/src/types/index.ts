@@ -9,6 +9,26 @@ export type ItemType = 'skin' | 'accessory';
 export type Rarity = 'common' | 'rare' | 'legendary';
 
 export type Lang = 'en' | 'ko';
+export type Language = 'en' | 'ko'; // alias for Lang
+
+export interface QuickReply {
+    id: string;
+    label: string;
+    emotion: string;
+}
+
+export interface ChatMessage {
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+    quickReplies?: QuickReply[];
+    timestamp: string; // ISO string
+}
+
+export interface ChatSession {
+    sessionId: string;
+    messages: ChatMessage[];
+}
 
 export interface Character {
     userId: string;
@@ -22,14 +42,6 @@ export interface Character {
     ownedItems: string[];
     bgTheme: string;
     lastFedAt: string;
-}
-
-export interface ChatMessage {
-    id: string;
-    role: 'user' | 'assistant';
-    content: string;
-    quickReplies?: string[];
-    timestamp: number;
 }
 
 export interface MeditationTrack {
