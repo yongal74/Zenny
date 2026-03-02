@@ -1,8 +1,17 @@
 import OpenAI from 'openai';
 import { redisService } from './redis.service';
-import type { Language, ChatMessage, QuickReply, Emotion } from '../../shared/types';
+import type { Language, ChatMessage, QuickReply, EmotionType } from '../../shared/types';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// ─── Lazy OpenAI 초기화 (키 없어도 서버 시작 가능) ────────────
+let _openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+    if (!_openai) {
+        const apiKey = process.env.OPENAI_API_KEY;
+        if (!apiKey) throw new Error('OPENAI_API_KEY is not set');
+        _openai = new OpenAI({ apiKey });
+    }
+    return _openai;
+}
 
 // ─── 시스템 프롬프트 ────────────────────────────────────────────
 function getSystemPrompt(lang: Language, characterType: string): string {
@@ -50,7 +59,7 @@ function getInitialQuickReplies(lang: Language): QuickReply[] {
     return Object.entries(labels).map(([emotion, label], i) => ({
         id: `qr-${i}`,
         label: lang === 'ko' ? label.ko : label.en,
-        emotion: emotion as Emotion,
+        emotion: emotion as EmotionType,
     }));
 }
 
@@ -84,6 +93,7 @@ export async function generateCoachResponse(opts: {
     const model = turnCount > 15 ? 'gpt-4o' : 'gpt-4o-mini';
 
     // 4. OpenAI 호출
+    const openai = getOpenAI();
     const completion = await openai.chat.completions.create({
         model,
         max_tokens: 200,
@@ -113,6 +123,7 @@ export async function summarizeSession(messages: ChatMessage[], lang: Language):
         ? `다음 명상 코치 대화를 2문장으로 요약하세요:\n${text}`
         : `Summarize this meditation coaching session in 2 sentences:\n${text}`;
 
+    const openai = getOpenAI();
     const res = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         max_tokens: 100,
