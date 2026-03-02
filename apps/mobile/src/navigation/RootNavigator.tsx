@@ -4,14 +4,36 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../constants/colors';
 
-// Screens
+// Screens — 실제 구현 파일 사용
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { AICoachScreen } from '../screens/ai-coach/AICoachScreen';
 import { ShopScreen } from '../screens/shop/ShopScreen';
 import { QuestScreen } from '../screens/quest/QuestScreen';
-import { LoginScreen, OnboardingScreen } from '../screens/auth/AuthScreens';
+import { LoginScreen } from '../screens/auth/LoginScreen';
+import { OnboardingScreen } from '../screens/auth/OnboardingScreen';
 
-// ─── Splash (RootNavigator에서 직접 관리) ────────────────────
+// Types
+export type RootStackParamList = {
+  Auth: undefined;
+  Main: undefined;
+};
+export type AuthStackParamList = {
+  Login: undefined;
+  Onboarding: undefined;
+};
+export type MainTabParamList = {
+  Home: undefined;
+  Quest: undefined;
+  AICoach: undefined;
+  Shop: undefined;
+};
+
+// Navigators — createStackNavigator (web 호환, react-native-screens 불필요)
+const RootStack = createStackNavigator<RootStackParamList>();
+const AuthStack = createStackNavigator<AuthStackParamList>();
+const MainTab = createBottomTabNavigator<MainTabParamList>();
+
+// ─── Splash View (navigator 밖에서 state로 관리) ─────────────
 function SplashView() {
   return (
     <View style={styles.splash}>
@@ -29,19 +51,11 @@ const styles = StyleSheet.create({
   tagline: { fontSize: 14, color: COLORS.text2 },
 });
 
-// Types
-export type RootStackParamList = { Auth: undefined; Main: undefined };
-export type AuthStackParamList = { Login: undefined; Onboarding: undefined };
-export type MainTabParamList = { Home: undefined; Quest: undefined; AICoach: undefined; Shop: undefined };
-
-// Navigators — createStackNavigator for web compatibility
-const AuthStack = createStackNavigator<AuthStackParamList>();
-const MainTab = createBottomTabNavigator<MainTabParamList>();
-
 const TabIcon = ({ label, focused }: { label: string; focused: boolean }) => (
   <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.4 }}>{label}</Text>
 );
 
+// ─── Main Tabs ────────────────────────────────────────────────
 function MainTabs() {
   return (
     <MainTab.Navigator
@@ -71,6 +85,7 @@ function MainTabs() {
   );
 }
 
+// ─── Auth Stack (Login → Onboarding) ─────────────────────────
 function AuthNavigator() {
   return (
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
@@ -80,10 +95,9 @@ function AuthNavigator() {
   );
 }
 
-// ─── Root — splash를 navigator 밖에서 state로 관리 ──────────
+// ─── Root — Splash는 state로, Auth/Main은 Stack으로 ─────────
 export function RootNavigator() {
   const [showSplash, setShowSplash] = useState(true);
-  const isAuthenticated = false; // TODO: useAuthStore
 
   useEffect(() => {
     const t = setTimeout(() => setShowSplash(false), 1000);
@@ -92,6 +106,12 @@ export function RootNavigator() {
 
   if (showSplash) return <SplashView />;
 
-  if (isAuthenticated) return <MainTabs />;
-  return <AuthNavigator />;
+  // Auth → Login → navigation.replace('Main') 가능하도록
+  // Main이 Root Stack에 존재해야 함
+  return (
+    <RootStack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Auth">
+      <RootStack.Screen name="Auth" component={AuthNavigator} />
+      <RootStack.Screen name="Main" component={MainTabs} />
+    </RootStack.Navigator>
+  );
 }
