@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from 'react';
-import { View, StatusBar } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, StatusBar, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -13,7 +13,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { COLORS } from './src/constants/colors';
 
-SplashScreen.preventAutoHideAsync();
+// Web에서는 SplashScreen이 지원 안 될 수 있으므로 try/catch
+if (Platform.OS !== 'web') {
+  SplashScreen.preventAutoHideAsync().catch(() => { });
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +25,7 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
+  const [appReady, setAppReady] = useState(Platform.OS === 'web'); // web은 바로 ready
   const [fontsLoaded, fontError] = useFonts({
     DMSans_400Regular,
     DMSans_600SemiBold,
@@ -31,11 +35,22 @@ export default function App() {
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
-      await SplashScreen.hideAsync();
+      if (Platform.OS !== 'web') {
+        await SplashScreen.hideAsync().catch(() => { });
+      }
+      setAppReady(true);
     }
   }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded && !fontError) return null;
+  // web에서 폰트 로딩 완료 감지
+  useEffect(() => {
+    if (Platform.OS === 'web' && (fontsLoaded || fontError)) {
+      setAppReady(true);
+    }
+  }, [fontsLoaded, fontError]);
+
+  // web: 바로 렌더, native: 폰트 로딩 완료 후 렌더
+  if (!appReady && Platform.OS !== 'web') return null;
 
   return (
     <QueryClientProvider client={queryClient}>
