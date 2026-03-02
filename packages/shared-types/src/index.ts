@@ -166,6 +166,15 @@ export interface QuestCompleteResponse {
   newLevel?: number;
 }
 
+// Chat Message
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  quickReplies?: string[];
+  timestamp: number;
+}
+
 // Coach Session
 export interface CoachChatRequest {
   message: string;
