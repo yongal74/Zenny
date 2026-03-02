@@ -6,55 +6,74 @@ import jwt from 'jsonwebtoken';
 const router = Router();
 const prisma = new PrismaClient();
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const JWT_SECRET = process.env.JWT_SECRET ?? 'zenny-dev-secret-change-in-production';
 const JWT_EXPIRES = '30d';
 
 // ─── POST /api/auth/register ─────────────────────────────────
 router.post('/register', async (req: Request, res: Response) => {
-  const { email, password, lang = 'en' } = req.body as { email: string; password: string; lang?: string };
+  try {
+    const { email, password, lang = 'en' } = req.body as { email: string; password: string; lang?: string };
 
-  if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
-  const exists = await prisma.user.findUnique({ where: { email } });
-  if (exists) return res.status(409).json({ error: 'Email already registered' });
+    const exists = await prisma.user.findUnique({ where: { email } });
+    if (exists) return res.status(409).json({ error: 'Email already registered' });
 
-  const hashed = await bcrypt.hash(password, 12);
+    const hashed = await bcrypt.hash(password, 12);
 
-  const user = await prisma.user.create({
-    data: { email, provider: 'email', lang },
-  });
+    const user = await prisma.user.create({
+      data: { email, password: hashed, provider: 'email', lang },
+    });
 
-  // 기본 캐릭터 생성 (Hana)
-  await prisma.character.create({
-    data: { userId: user.id, characterType: 'hana', level: 1, exp: 0 },
-  });
+    // 기본 캐릭터 생성 (Hana)
+    await prisma.character.create({
+      data: { userId: user.id, characterType: 'hana', level: 1, exp: 0 },
+    });
 
-  // 기본 일일 퀘스트 배정
-  const questDefs = await prisma.questDefinition.findMany({ where: { type: 'daily' } });
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  await prisma.userQuest.createMany({
-    data: questDefs.map((q) => ({ userId: user.id, questId: q.id, date: today })),
-  });
+    // 기본 일일 퀘스트 배정
+    const questDefs = await prisma.questDefinition.findMany({ where: { type: 'daily' } });
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    if (questDefs.length > 0) {
+      await prisma.userQuest.createMany({
+        data: questDefs.map((q) => ({ userId: user.id, questId: q.id, date: today })),
+      });
+    }
 
-  const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
+    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
 
-  return res.status(201).json({ token, userId: user.id, lang: user.lang });
+    return res.status(201).json({ token, userId: user.id, lang: user.lang });
+  } catch (err: any) {
+    console.error('[auth/register]', err.message);
+    return res.status(500).json({ error: 'Registration failed' });
+  }
 });
 
 // ─── POST /api/auth/login ─────────────────────────────────────
 router.post('/login', async (req: Request, res: Response) => {
-  const { email, password } = req.body as { email: string; password: string };
+  try {
+    const { email, password } = req.body as { email: string; password: string };
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
-  // 소셜 로그인 사용자는 비번 없음
-  if (user.provider !== 'email') {
-    return res.status(400).json({ error: `Use ${user.provider} login` });
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+
+    // 소셜 로그인 사용자는 비번 없음
+    if (user.provider !== 'email') {
+      return res.status(400).json({ error: `Use ${user.provider} login` });
+    }
+
+    // 비밀번호 검증
+    if (!user.password) return res.status(401).json({ error: 'Invalid credentials' });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
+    return res.json({ token, userId: user.id, lang: user.lang });
+  } catch (err: any) {
+    console.error('[auth/login]', err.message);
+    return res.status(500).json({ error: 'Login failed' });
   }
-
-  const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
-  return res.json({ token, userId: user.id, lang: user.lang });
 });
 
 // ─── GET /api/auth/me ─────────────────────────────────────────
