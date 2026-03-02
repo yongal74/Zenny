@@ -1,7 +1,7 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import { COLORS } from '../constants/colors';
 
 // Screens
@@ -9,9 +9,7 @@ import { HomeScreen } from '../screens/home/HomeScreen';
 import { AICoachScreen } from '../screens/ai-coach/AICoachScreen';
 import { ShopScreen } from '../screens/shop/ShopScreen';
 import { QuestScreen } from '../screens/quest/QuestScreen';
-import { SplashScreen } from '../screens/auth/SplashScreen';
-import { LoginScreen } from '../screens/auth/LoginScreen';
-import { OnboardingScreen } from '../screens/auth/OnboardingScreen';
+import { SplashScreen, LoginScreen, OnboardingScreen } from '../screens/auth/AuthScreens';
 
 // Types
 export type RootStackParamList = {
@@ -30,8 +28,9 @@ export type MainTabParamList = {
   Shop: undefined;
 };
 
-const RootStack = createNativeStackNavigator<RootStackParamList>();
-const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+// createStackNavigator — web 호환 (react-native-screens 불필요)
+const RootStack = createStackNavigator<RootStackParamList>();
+const AuthStack = createStackNavigator<AuthStackParamList>();
 const MainTab = createBottomTabNavigator<MainTabParamList>();
 
 // ─── Tab Icon ─────────────────────────────────────────────────
@@ -56,7 +55,6 @@ function MainTabs() {
         tabBarInactiveTintColor: COLORS.text3,
         tabBarLabelStyle: {
           fontSize: 11,
-          fontFamily: 'DMSans_400Regular',
           marginTop: -2,
         },
       }}
@@ -98,8 +96,7 @@ function AuthNavigator() {
 
 // ─── Root ─────────────────────────────────────────────────────
 export function RootNavigator() {
-  // TODO: useAuthStore로 로그인 상태 확인
-  const isAuthenticated = false;
+  const isAuthenticated = false; // TODO: useAuthStore
 
   return (
     <RootStack.Navigator screenOptions={{ headerShown: false }}>
