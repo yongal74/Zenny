@@ -7,7 +7,6 @@ class RedisService {
     constructor() {
         this.client = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
             lazyConnect: true,
-            retryDelayOnFailover: 100,
             maxRetriesPerRequest: 2,
             enableOfflineQueue: false,
         });
