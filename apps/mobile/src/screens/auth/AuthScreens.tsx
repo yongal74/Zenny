@@ -1,9 +1,23 @@
-// Auth 화면들 — 기본 스텁 (추후 상세 구현)
-import React from 'react';
+// Auth 화면들
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
 import { COLORS } from '../../constants/colors';
+import type { AuthStackParamList } from '../../navigation/RootNavigator';
+
+type AuthNavProp = StackNavigationProp<AuthStackParamList>;
 
 export function SplashScreen() {
+    const navigation = useNavigation<AuthNavProp>();
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            navigation.replace('Login');
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, [navigation]);
+
     return (
         <View style={styles.container}>
             <Text style={styles.logo}>✿</Text>
@@ -32,8 +46,8 @@ export function OnboardingScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: COLORS.bg, justifyContent: 'center', alignItems: 'center' },
-    logo: { fontSize: 64, marginBottom: 12 },
-    appName: { fontSize: 36, fontFamily: 'Fraunces_500Medium', color: COLORS.text, marginBottom: 4 },
-    tagline: { fontSize: 14, color: COLORS.text2, fontFamily: 'DMSans_400Regular' },
-    title: { fontSize: 24, fontFamily: 'Fraunces_500Medium', color: COLORS.text },
+    logo: { fontSize: 64, marginBottom: 12, color: '#C4B5FD' }, // 보라색으로 배경과 대비
+    appName: { fontSize: 36, color: COLORS.text, marginBottom: 4, fontWeight: '700' },
+    tagline: { fontSize: 14, color: COLORS.text2 },
+    title: { fontSize: 24, color: COLORS.text, fontWeight: '600' },
 });
