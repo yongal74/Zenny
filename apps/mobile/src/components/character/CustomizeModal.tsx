@@ -16,7 +16,7 @@ import { useCharacterStore } from '../../stores/characterStore';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+import { API_BASE } from '../../utils/api';
 
 const TABS = ['Skins', 'Hat', 'Face', 'Body', 'Aura', 'Pet'] as const;
 const SLOT_MAP: Record<string, string> = { Skins: 'skin', Hat: 'hat', Face: 'face', Body: 'body', Aura: 'bg', Pet: 'pet' };

@@ -8,7 +8,7 @@ import axios from 'axios';
 import { COLORS } from '../../constants/colors';
 import { useCharacterStore } from '../../stores/characterStore';
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+import { API_BASE } from '../../utils/api';
 
 interface UserQuest {
   id: string;

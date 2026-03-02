@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { ChatMessage, Language, QuickReply } from '../types';
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+import { API_BASE } from '../utils/api';
 
 const api = axios.create({
     baseURL: API_BASE,
