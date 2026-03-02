@@ -86,7 +86,7 @@ export function RootNavigator() {
   const isAuthenticated = false; // TODO: useAuthStore
 
   useEffect(() => {
-    const t = setTimeout(() => setShowSplash(false), 2000);
+    const t = setTimeout(() => setShowSplash(false), 1000);
     return () => clearTimeout(t);
   }, []);
 
