@@ -10,6 +10,7 @@ import {
 } from '@expo-google-fonts/dm-sans';
 import { Fraunces_500Medium } from '@expo-google-fonts/fraunces';
 import * as SplashScreen from 'expo-splash-screen';
+import { registerRootComponent } from 'expo';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { COLORS } from './src/constants/colors';
 
@@ -24,8 +25,7 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function App() {
-  // Web에서는 폰트 로딩을 기다리지 않고 즉시 렌더
+function App() {
   const isWeb = Platform.OS === 'web';
 
   const [fontsLoaded, fontError] = useFonts({
@@ -41,7 +41,7 @@ export default function App() {
     }
   }, [fontsLoaded, fontError, isWeb]);
 
-  // Web: 바로 렌더 / Native: 폰트 로딩 완료 후 렌더
+  // Web: 즉시 렌더 / Native: 폰트 로딩 후 렌더
   if (!isWeb && !fontsLoaded && !fontError) return null;
 
   return (
@@ -55,3 +55,6 @@ export default function App() {
     </QueryClientProvider>
   );
 }
+
+// Web DOM 마운트를 위해 필수
+export default registerRootComponent(App);
