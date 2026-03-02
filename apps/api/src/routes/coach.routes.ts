@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { generateCoachResponse } from '../services/openai.service';
 import type { Language, ChatMessage } from '../../shared/types';
 
@@ -74,7 +74,7 @@ router.post('/chat', async (req: Request, res: Response) => {
   await prisma.coachSession.update({
     where: { id: sessionId },
     data: {
-      messages: [...history, userMsg, aiMsg],
+      messages: [...history, userMsg, aiMsg] as unknown as Prisma.InputJsonValue[],
       turnCount: { increment: 1 },
     },
   });
